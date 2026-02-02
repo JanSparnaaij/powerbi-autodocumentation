@@ -1,0 +1,7 @@
+# Python dependencies
+mcp>=1.0.0
+pbixray>=0.1.0
+
+# For local testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0

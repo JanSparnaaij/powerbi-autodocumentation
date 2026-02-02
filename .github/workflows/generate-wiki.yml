@@ -1,0 +1,78 @@
+name: Generate Power BI Documentation
+
+on:
+  push:
+    paths:
+      - '**.pbix'
+      - '.github/workflows/generate-wiki.yml'
+  workflow_dispatch:
+    inputs:
+      pbix_path:
+        description: 'Path to PBIX file'
+        required: true
+        default: 'models/SalesModel.pbix'
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          git clone https://github.com/jonaolden/pbixray-mcp-server.git
+          pip install -e ./pbixray-mcp-server
+          pip install mcp pbixray
+          pip install -r requirements.txt
+      
+      - name: Find PBIX files
+        id: find-pbix
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "pbix_files=${{ github.event.inputs.pbix_path }}" >> $GITHUB_OUTPUT
+          else
+            files=$(find . -name "*.pbix" -type f | head -1)
+            echo "pbix_files=$files" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Generate wiki
+        run: |
+          python generate_wiki.py "${{ steps.find-pbix.outputs.pbix_files }}" \
+            -o ./wiki-output
+      
+      - name: Checkout wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update wiki content
+        run: |
+          # Clear existing content (except .git)
+          find wiki -maxdepth 1 -type f -name "*.md" -delete
+          
+          # Copy new content
+          cp -r wiki-output/* wiki/
+      
+      - name: Commit and push wiki
+        run: |
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-update documentation from ${{ github.sha }}" || echo "No changes to commit"
+          git push

@@ -1,0 +1,116 @@
+# src/generators/wiki_generator.py
+import os
+import asyncio
+from pathlib import Path
+
+from ..mcp_client.client import MCPClient
+from ..mcp_client.pbixray_tools import PBIXRayClient
+from .mermaid import generate_er_diagram
+from .pages import (
+    generate_home_page,
+    generate_table_page,
+    generate_measures_page,
+    generate_relationships_page,
+    generate_data_sources_page,
+)
+
+
+class WikiGenerator:
+    """Generates GitHub wiki pages from PBIX model."""
+    
+    def __init__(self, output_dir: str):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+    
+    async def generate(self, pbix_path: str, model_name: str | None = None):
+        """Generate complete wiki from PBIX file."""
+        
+        if not model_name:
+            model_name = Path(pbix_path).stem
+        
+        print(f"Generating documentation for {model_name}...")
+        
+        # Start MCP server and extract metadata
+        # For PBIP/TMDL: Use Microsoft's Modeling MCP Server
+        # For PBIX: Use pbixray-mcp-server
+        
+        # Check if path is PBIP folder or PBIX file
+        pbix_path_obj = Path(pbix_path)
+        if pbix_path_obj.is_dir() or pbix_path.endswith('.SemanticModel'):
+            # PBIP/TMDL folder - use Microsoft's Modeling MCP Server
+            mcp_exe = Path(__file__).parent.parent.parent / "powerbi-modeling-mcp-extracted" / "extension" / "server" / "powerbi-modeling-mcp.exe"
+            server_cmd = [str(mcp_exe.absolute()), "--start"]
+        else:
+            # PBIX file - use pbixray-mcp-server
+            server_cmd = ["python", "-m", "pbixray_mcp_server"]
+        
+        try:
+            async with MCPClient(server_cmd).connect() as client:
+                pbi = PBIXRayClient(client)
+                
+                print("Loading PBIX file...")
+                await pbi.load_pbix(pbix_path)
+                
+                print("Extracting metadata...")
+                summary = await pbi.get_model_summary()
+                tables = await pbi.get_tables()
+                measures = await pbi.get_measures()
+                relationships = await pbi.get_relationships()
+                
+                print(f"Found {len(tables)} tables, {len(measures)} measures, {len(relationships)} relationships")
+                
+                # Get schema for each table
+                schemas = {}
+                for table in tables:
+                    schemas[table.name] = await pbi.get_schema(table.name)
+                
+                # Get Power Query code
+                power_query = await pbi.get_power_query()
+        
+        except FileNotFoundError as e:
+            print(f"Error: {e}")
+            raise
+        except RuntimeError as e:
+            print(f"MCP Error: {e}")
+            print("Ensure the pbixray-mcp-server is installed and accessible")
+            raise
+        
+        # Generate pages
+        print("Generating wiki pages...")
+        self._write_page("Home", generate_home_page(
+            model_name, summary, tables, measures
+        ))
+        
+        for table in tables:
+            page_name = f"Table-{self._slugify(table.name)}"
+            self._write_page(page_name, generate_table_page(
+                table, schemas[table.name], measures
+            ))
+        
+        self._write_page("Measures", generate_measures_page(measures))
+        
+        er_diagram = generate_er_diagram(
+            relationships,
+            [t.name for t in tables]
+        )
+        self._write_page("Relationships", generate_relationships_page(
+            relationships, er_diagram
+        ))
+        
+        self._write_page("Data-Sources", generate_data_sources_page(power_query))
+        
+        print(f"✓ Documentation generated in {self.output_dir}")
+        print(f"  - Home page")
+        print(f"  - {len(tables)} table pages")
+        print(f"  - Measures page")
+        print(f"  - Relationships page")
+        print(f"  - Data Sources page")
+    
+    def _write_page(self, page_name: str, content: str):
+        """Write a wiki page to disk."""
+        file_path = self.output_dir / f"{page_name}.md"
+        file_path.write_text(content, encoding="utf-8")
+    
+    def _slugify(self, text: str) -> str:
+        """Convert text to URL-safe slug."""
+        return text.lower().replace(" ", "-").replace("_", "-")
