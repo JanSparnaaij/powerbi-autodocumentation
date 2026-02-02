@@ -68,13 +68,18 @@ pip install -r requirements.txt
 Generate documentation locally from a PBIX file:
 
 ```bash
-python generate_wiki.py ./path/to/your/model.pbix -o ./wiki-preview
+python generate_wiki.py ./path/to/your/model.pbix -o ./docs
 ```
 
 Example from the articles:
 ```bash
-python generate_wiki.py ./models/Sales.pbix -o ./wiki -n "Sales Analytics Model"
+python generate_wiki.py ./models/Sales.pbix -o ./docs -n "Sales Analytics Model"
 ```
+
+The generated markdown files can be:
+- Committed to your repository (in `docs/` folder)
+- Hosted on GitHub Pages (free on all plans)
+- Used in any documentation system that supports markdown
 
 ### Running Locally (from the articles)
 
@@ -104,13 +109,19 @@ cat ./wiki-preview/Home.md
 
 The pipeline automatically generates documentation when you push PBIX files:
 
-1. Enable wiki for your repository (Settings → Features → Wikis)
+1. **No wiki needed** - Documentation goes to `docs/` folder in your repository
 
 2. The workflow triggers on:
    - Push of any `.pbix` file
    - Manual dispatch via Actions tab
 
-3. Documentation is automatically committed to the wiki repository
+3. Documentation is automatically committed to the repository
+
+4. **Enable GitHub Pages** (optional):
+   - Go to Settings → Pages
+   - Source: Deploy from a branch
+   - Branch: `main` or `master`, folder: `/docs`
+   - Your docs will be at `https://yourusername.github.io/repo-name/`
 
 ### Manual Workflow Dispatch
 

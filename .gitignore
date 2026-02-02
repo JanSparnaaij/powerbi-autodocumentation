@@ -25,6 +25,7 @@ Thumbs.db
 # Project specific
 wiki/
 wiki-output/
+# docs/ folder is committed for GitHub Pages
 *.pbix
 pbixray-mcp-server/
 powerbi-modeling-mcp/
