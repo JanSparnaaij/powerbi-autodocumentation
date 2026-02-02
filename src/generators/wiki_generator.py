@@ -31,18 +31,8 @@ class WikiGenerator:
         print(f"Generating documentation for {model_name}...")
         
         # Start MCP server and extract metadata
-        # For PBIP/TMDL: Use Microsoft's Modeling MCP Server
-        # For PBIX: Use pbixray-mcp-server
-        
-        # Check if path is PBIP folder or PBIX file
-        pbix_path_obj = Path(pbix_path)
-        if pbix_path_obj.is_dir() or pbix_path.endswith('.SemanticModel'):
-            # PBIP/TMDL folder - use Microsoft's Modeling MCP Server
-            mcp_exe = Path(__file__).parent.parent.parent / "powerbi-modeling-mcp-extracted" / "extension" / "server" / "powerbi-modeling-mcp.exe"
-            server_cmd = [str(mcp_exe.absolute()), "--start"]
-        else:
-            # PBIX file - use pbixray-mcp-server
-            server_cmd = ["python", "-m", "pbixray_mcp_server"]
+        # Requires pbixray-mcp-server in Python path (see installation section)
+        server_cmd = ["python", "-m", "pbixray_mcp_server"]
         
         try:
             async with MCPClient(server_cmd).connect() as client:
