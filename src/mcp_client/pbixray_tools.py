@@ -45,7 +45,7 @@ class PBIXRayClient:
         if not Path(file_path).exists():
             raise FileNotFoundError(f"PBIX file not found: {file_path}")
         
-        result = await self.client.call_tool("load_pbix", {"file_path": file_path})
+        result = await self.client.call_tool("load_pbix_file", {"file_path": file_path})
         return self._parse_result(result)
     
     async def get_tables(self) -> list[Table]:
@@ -73,7 +73,7 @@ class PBIXRayClient:
     
     async def get_measures(self) -> list[Measure]:
         """Get all measures from the loaded model."""
-        result = await self.client.call_tool("get_measures", {})
+        result = await self.client.call_tool("get_dax_measures", {})
         data = self._parse_result(result)
         
         # Handle case where data might be a string or not a list
