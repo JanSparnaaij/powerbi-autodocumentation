@@ -26,13 +26,8 @@
 
 | Measure | Expression |
 |---------|------------|
-| [Sales by reseller](Measures#sales-by-reseller) | `
-VAR StartDate = DATE(2022, 12, 1)
-VAR EndDate   =...` |
-| [Reseller Sales](Measures#reseller-sales) | `
-    VAR TopResellerTable = 
-      TOPN(
-        1...` |
+| [Sales by reseller](Measures#sales-by-reseller) | `VAR StartDate = DATE(2022, 12, 1) VAR EndDate = EO...` |
+| [Reseller Sales](Measures#reseller-sales) | `VAR TopResellerTable = TOPN( 1, ALL('Reseller'), C...` |
 
 
 ---
