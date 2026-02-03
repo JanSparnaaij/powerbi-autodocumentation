@@ -16,7 +16,7 @@ def generate_home_page(
     
     # Build table of contents
     table_links = "\n".join(
-        f"- [{t.name}](Table-{_slugify(t.name)})"
+        f"- [{t.name}](Table-{_slugify(t.name)}.md)"
         for t in tables
     )
     
@@ -40,9 +40,9 @@ def generate_home_page(
 
 ### Other Pages
 
-- [All Measures](Measures)
-- [Relationships](Relationships)
-- [Data Sources](Data-Sources)
+- [All Measures](Measures.md)
+- [Relationships](Relationships.md)
+- [Data Sources](Data-Sources.md)
 
 ---
 
@@ -109,7 +109,7 @@ def generate_table_page(
 
 ---
 
-[← Back to Home](Home)
+[← Back to Home](Home.md)
 """
 
 
@@ -153,7 +153,7 @@ def generate_measures_page(measures: list[Measure]) -> str:
 
 """
     
-    content += "\n[← Back to Home](Home)\n"
+    content += "\n[← Back to Home](Home.md)\n"
     return content
 
 
@@ -183,7 +183,7 @@ def generate_relationships_page(
         active = "✓" if r.is_active else "✗"
         content += f"| {r.from_table} | {r.from_column} | {r.to_table} | {r.to_column} | {active} | {r.cross_filter_direction} |\n"
     
-    content += "\n---\n\n[← Back to Home](Home)\n"
+    content += "\n---\n\n[← Back to Home](Home.md)\n"
     return content
 
 
@@ -202,7 +202,7 @@ The following Power Query code defines the data sources and transformations for 
 
 ---
 
-[← Back to Home](Home)
+[← Back to Home](Home.md)
 """
 
 
