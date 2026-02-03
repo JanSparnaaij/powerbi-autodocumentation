@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       pbix_path:
-        description: 'Path to PBIX file'
+        description: 'Path to PBIX file or PBIP folder'
         required: true
         default: './models/Fabrikam Company Sales Report.pbix'
 
@@ -55,24 +55,28 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "${{ github.event.inputs.pbix_path }}" > /tmp/pbix_files.txt
           else
-            # Find changed PBIX files in the push
-            git diff --name-only HEAD^ HEAD | grep '\.pbix$' > /tmp/pbix_files.txt || true
+            # Find changed PBIX files and PBIP folders in the push
+            git diff --name-only HEAD^ HEAD | grep -E '\.(pbix|pbip)$' > /tmp/pbix_files.txt || true
+            
+            # For PBIP, we need the folder path not the file
+            sed -i 's|/definition\.pbip$||g' /tmp/pbix_files.txt
             
             if [ ! -s /tmp/pbix_files.txt ]; then
-              # No changed PBIX files, find all PBIX files
-              echo "No changed PBIX files detected, processing all PBIX files"
+              # No changed PBIX/PBIP files, find all
+              echo "No changed PBIX/PBIP files detected, processing all"
               find . -name "*.pbix" -type f -not -path "*/pbixray-mcp-server/*" > /tmp/pbix_files.txt
+              find . -name "definition.pbip" -type f -not -path "*/pbixray-mcp-server/*" | sed 's|/definition\.pbip$||g' >> /tmp/pbix_files.txt
             else
-              echo "Found changed PBIX files:"
+              echo "Found changed PBIX/PBIP files:"
               cat /tmp/pbix_files.txt
             fi
           fi
       
       - name: Generate wiki
         run: |
-          # Process each PBIX file (handles filenames with spaces)
+          # Process each PBIX/PBIP file (handles filenames with spaces)
           while IFS= read -r pbix; do
-            if [ -f "$pbix" ]; then
+            if [ -f "$pbix" ] || [ -d "$pbix" ]; then
               echo "Processing: $pbix"
               python generate_wiki.py "$pbix" -o ./docs
             fi
