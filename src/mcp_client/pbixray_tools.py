@@ -69,7 +69,11 @@ class PBIXRayClient:
                 # Clean up excessive whitespace that breaks ast.literal_eval
                 # Replace multiple spaces/newlines between items with single space
                 data = re.sub(r'\s+', ' ', data)
-                print(f"DEBUG: After whitespace cleanup, first 200 chars: {data[:200]}")
+                
+                # Remove pandas Series metadata (e.g., "Length: 14, dtype: str")
+                data = re.sub(r'\s*Length:\s*\d+,\s*dtype:\s*\w+\s*$', '', data)
+                
+                print(f"DEBUG: After cleanup, first 200 chars: {data[:200]}")
                 
                 # Use ast.literal_eval for Python-formatted lists (single quotes, etc.)
                 print("DEBUG: Attempting ast.literal_eval")
@@ -141,15 +145,19 @@ class PBIXRayClient:
             if isinstance(rel_data, dict):
                 # Extract fields with fallbacks
                 from_table = rel_data.get("FromTableName") or rel_data.get("FromTable") or ""
-                to_table = rel_data.get("ToTableName") or rel_data.get("ToTable") or ""
+                to_table_raw = rel_data.get("ToTableName") or rel_data.get("ToTable")
+                to_table = to_table_raw if to_table_raw is not None else ""
                 
-                # Debug empty table names
+                # Debug and skip relationships with None to_table (auto-date relationships)
+                if to_table_raw is None:
+                    from_col = rel_data.get("FromColumnName") or rel_data.get("FromColumn") or ""
+                    print(f"DEBUG: Skipping auto-date relationship: {from_table}[{from_col}] -> LocalDateTable (None)")
+                    continue
+                
+                # Skip if either table name is empty string
                 if not from_table or not to_table:
-                    print(f"DEBUG: Relationship {i} has empty table name(s):")
-                    print(f"  All keys: {list(rel_data.keys())}")
-                    print(f"  FromTableName={rel_data.get('FromTableName')}, FromTable={rel_data.get('FromTable')}")
-                    print(f"  ToTableName={rel_data.get('ToTableName')}, ToTable={rel_data.get('ToTable')}")
-                    print(f"  Full data: {rel_data}")
+                    print(f"DEBUG: Skipping relationship with empty table name: from='{from_table}' to='{to_table}'")
+                    continue
                 
                 relationships.append(Relationship(
                     from_table=from_table,
