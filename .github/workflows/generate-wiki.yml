@@ -11,7 +11,7 @@ on:
       pbix_path:
         description: 'Path to PBIX file'
         required: true
-        default: './pbixray-mcp-server/demo/AdventureWorks Sales.pbix'
+        default: './models/Fabrikam Company Sales Report.pbix'
 
 jobs:
   generate-docs:
@@ -55,7 +55,8 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "pbix_files=${{ github.event.inputs.pbix_path }}" >> $GITHUB_OUTPUT
           else
-            files=$(find . -name "*.pbix" -type f | head -1)
+            # Find PBIX files, excluding the demo folder
+            files=$(find . -name "*.pbix" -type f -not -path "*/pbixray-mcp-server/*" | head -1)
             echo "pbix_files=$files" >> $GITHUB_OUTPUT
           fi
       
