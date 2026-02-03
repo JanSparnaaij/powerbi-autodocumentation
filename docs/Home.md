@@ -1,6 +1,6 @@
 # Fabrikam Company Sales Report - Semantic Model Documentation
 
-> Auto-generated on 2026-02-03 15:12 UTC
+> Auto-generated on 2026-02-03 15:21 UTC
 
 ## Model Overview
 
@@ -18,9 +18,9 @@
 
 ### Other Pages
 
-- [All Measures](Measures)
-- [Relationships](Relationships)
-- [Data Sources](Data-Sources)
+- [All Measures](Measures.md)
+- [Relationships](Relationships.md)
+- [Data Sources](Data-Sources.md)
 
 ---
 
