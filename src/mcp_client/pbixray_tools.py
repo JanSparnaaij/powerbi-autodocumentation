@@ -53,13 +53,22 @@ class PBIXRayClient:
         result = await self.client.call_tool("get_tables", {})
         data = self._parse_result(result)
         
+        # Handle case where data might be a string or not a list
+        if isinstance(data, str):
+            print(f"Warning: get_tables returned string: {data[:200]}...")
+            return []
+        if not isinstance(data, list):
+            print(f"Warning: get_tables returned non-list type: {type(data)}")
+            return []
+        
         tables = []
         for table_data in data:
-            tables.append(Table(
-                name=table_data.get("name", ""),
-                columns=table_data.get("columns", []),
-                row_count=table_data.get("row_count")
-            ))
+            if isinstance(table_data, dict):
+                tables.append(Table(
+                    name=table_data.get("name", ""),
+                    columns=table_data.get("columns", []),
+                    row_count=table_data.get("row_count")
+                ))
         return tables
     
     async def get_measures(self) -> list[Measure]:
@@ -67,15 +76,24 @@ class PBIXRayClient:
         result = await self.client.call_tool("get_measures", {})
         data = self._parse_result(result)
         
+        # Handle case where data might be a string or not a list
+        if isinstance(data, str):
+            print(f"Warning: get_measures returned string: {data[:200]}...")
+            return []
+        if not isinstance(data, list):
+            print(f"Warning: get_measures returned non-list type: {type(data)}")
+            return []
+        
         measures = []
         for measure_data in data:
-            measures.append(Measure(
-                name=measure_data.get("name", ""),
-                table=measure_data.get("table", ""),
-                expression=measure_data.get("expression", ""),
-                description=measure_data.get("description"),
-                format_string=measure_data.get("format_string"),
-                is_hidden=measure_data.get("is_hidden", False),
+            if isinstance(measure_data, dict):
+                measures.append(Measure(
+                    name=measure_data.get("name", ""),
+                    table=measure_data.get("table", ""),
+                    expression=measure_data.get("expression", ""),
+                    description=measure_data.get("description"),
+                    format_string=measure_data.get("format_string"),
+                    is_hidden=measure_data.get("is_hidden", False),
                 display_folder=measure_data.get("display_folder")
             ))
         return measures
@@ -85,11 +103,20 @@ class PBIXRayClient:
         result = await self.client.call_tool("get_relationships", {})
         data = self._parse_result(result)
         
+        # Handle case where data might be a string or not a list
+        if isinstance(data, str):
+            print(f"Warning: get_relationships returned string: {data[:200]}...")
+            return []
+        if not isinstance(data, list):
+            print(f"Warning: get_relationships returned non-list type: {type(data)}")
+            return []
+        
         relationships = []
         for rel_data in data:
-            relationships.append(Relationship(
-                from_table=rel_data.get("from_table", ""),
-                from_column=rel_data.get("from_column", ""),
+            if isinstance(rel_data, dict):
+                relationships.append(Relationship(
+                    from_table=rel_data.get("from_table", ""),
+                    from_column=rel_data.get("from_column", ""),
                 to_table=rel_data.get("to_table", ""),
                 to_column=rel_data.get("to_column", ""),
                 is_active=rel_data.get("is_active", True),
