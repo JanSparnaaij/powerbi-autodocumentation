@@ -85,13 +85,13 @@ class PBIXRayClient:
         for measure_data in data:
             if isinstance(measure_data, dict):
                 measures.append(Measure(
-                    name=measure_data.get("name", ""),
-                    table=measure_data.get("table", ""),
-                    expression=measure_data.get("expression", ""),
-                    description=measure_data.get("description"),
-                    format_string=measure_data.get("format_string"),
-                    is_hidden=measure_data.get("is_hidden", False),
-                display_folder=measure_data.get("display_folder")
+                    name=measure_data.get("Name", ""),
+                    table=measure_data.get("TableName", ""),
+                    expression=measure_data.get("Expression", ""),
+                    description=measure_data.get("Description"),
+                    format_string=measure_data.get("FormatString"),
+                    is_hidden=measure_data.get("IsHidden", False),
+                display_folder=measure_data.get("DisplayFolder")
             ))
         return measures
     
@@ -99,6 +99,10 @@ class PBIXRayClient:
         """Get all relationships from the loaded model."""
         result = await self.client.call_tool("get_relationships", {})
         data = self._parse_result(result)
+        
+        # Debug: print first relationship to see structure
+        if isinstance(data, list) and len(data) > 0:
+            print(f"DEBUG: First relationship structure: {data[0]}")
         
         # Handle case where data might be a string or not a list
         if isinstance(data, str):
@@ -112,12 +116,12 @@ class PBIXRayClient:
         for rel_data in data:
             if isinstance(rel_data, dict):
                 relationships.append(Relationship(
-                    from_table=rel_data.get("from_table", ""),
-                    from_column=rel_data.get("from_column", ""),
-                to_table=rel_data.get("to_table", ""),
-                to_column=rel_data.get("to_column", ""),
-                is_active=rel_data.get("is_active", True),
-                cross_filter_direction=rel_data.get("cross_filter_direction", "OneWay")
+                    from_table=rel_data.get("FromTable", rel_data.get("from_table", "")),
+                    from_column=rel_data.get("FromColumn", rel_data.get("from_column", "")),
+                to_table=rel_data.get("ToTable", rel_data.get("to_table", "")),
+                to_column=rel_data.get("ToColumn", rel_data.get("to_column", "")),
+                is_active=rel_data.get("IsActive", rel_data.get("is_active", True)),
+                cross_filter_direction=rel_data.get("CrossFilterDirection", rel_data.get("cross_filter_direction", "OneWay"))
             ))
         return relationships
     
