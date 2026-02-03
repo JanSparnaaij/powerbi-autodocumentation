@@ -53,32 +53,30 @@ jobs:
         id: find-pbix
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "pbix_files=${{ github.event.inputs.pbix_path }}" >> $GITHUB_OUTPUT
+            echo "${{ github.event.inputs.pbix_path }}" > /tmp/pbix_files.txt
           else
             # Find changed PBIX files in the push
-            changed_files=$(git diff --name-only HEAD^ HEAD | grep '\.pbix$' || true)
+            git diff --name-only HEAD^ HEAD | grep '\.pbix$' > /tmp/pbix_files.txt || true
             
-            if [ -z "$changed_files" ]; then
+            if [ ! -s /tmp/pbix_files.txt ]; then
               # No changed PBIX files, find all PBIX files
               echo "No changed PBIX files detected, processing all PBIX files"
-              changed_files=$(find . -name "*.pbix" -type f -not -path "*/pbixray-mcp-server/*")
+              find . -name "*.pbix" -type f -not -path "*/pbixray-mcp-server/*" > /tmp/pbix_files.txt
             else
               echo "Found changed PBIX files:"
-              echo "$changed_files"
+              cat /tmp/pbix_files.txt
             fi
-            
-            echo "pbix_files=$changed_files" >> $GITHUB_OUTPUT
           fi
       
       - name: Generate wiki
         run: |
-          # Process each PBIX file
-          for pbix in ${{ steps.find-pbix.outputs.pbix_files }}; do
+          # Process each PBIX file (handles filenames with spaces)
+          while IFS= read -r pbix; do
             if [ -f "$pbix" ]; then
               echo "Processing: $pbix"
               python generate_wiki.py "$pbix" -o ./docs
             fi
-          done
+          done < /tmp/pbix_files.txt
       
       - name: Commit and push documentation
         run: |
