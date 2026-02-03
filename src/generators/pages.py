@@ -74,12 +74,15 @@ def generate_table_page(
         for col in table.columns:
             # Handle both dict and object column formats
             if isinstance(col, dict):
-                col_name = col.get("Name") or col.get("name") or col.get("ColumnName") or ""
-                col_type = col.get("DataType") or col.get("dataType") or col.get("data_type") or "Unknown"
-                col_desc = col.get("Description") or col.get("description") or ""
+                # Try various field name combinations (observed: ColumnName, PandasDataType)
+                col_name = (col.get("ColumnName") or col.get("Name") or 
+                           col.get("name") or col.get("column_name") or "")
+                col_type = (col.get("PandasDataType") or col.get("DataType") or 
+                           col.get("dataType") or col.get("data_type") or "Unknown")
+                col_desc = (col.get("Description") or col.get("description") or "")
             else:
-                col_name = getattr(col, 'name', getattr(col, 'Name', ''))
-                col_type = getattr(col, 'data_type', getattr(col, 'DataType', 'Unknown'))
+                col_name = getattr(col, 'ColumnName', getattr(col, 'name', getattr(col, 'Name', '')))
+                col_type = getattr(col, 'PandasDataType', getattr(col, 'data_type', getattr(col, 'DataType', 'Unknown')))
                 col_desc = getattr(col, 'description', getattr(col, 'Description', ''))
             
             # Escape pipe characters in descriptions
