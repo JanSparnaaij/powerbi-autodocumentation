@@ -53,31 +53,25 @@ class PBIXRayClient:
         result = await self.client.call_tool("get_tables", {})
         data = self._parse_result(result)
         
-        # Debug: print to see structure
-        print(f"DEBUG: get_tables data type: {type(data)}")
+        # Handle string response (Python-formatted list with <StringArray> header)
         if isinstance(data, str):
-            print(f"DEBUG: Tables string (first 500 chars): {data[:500]}")
-        if isinstance(data, list) and len(data) > 0:
-            print(f"DEBUG: First table item: type={type(data[0])}, value={data[0]}")
-        
-        # If string, try to parse as JSON array
-        if isinstance(data, str):
+            # Remove <StringArray> header if present
+            if data.strip().startswith('<StringArray>'):
+                data = data.strip()[len('<StringArray>'):].strip()
+            
             try:
-                import json
-                data = json.loads(data)
-            except json.JSONDecodeError:
-                print(f"Warning: Could not parse tables string as JSON, treating as plain text")
-                # Maybe it's already a string array representation
+                import ast
+                # Use ast.literal_eval for Python-formatted lists (single quotes, etc.)
+                data = ast.literal_eval(data)
+            except (ValueError, SyntaxError) as e:
+                print(f"Warning: Could not parse tables string: {e}")
+                print(f"First 500 chars: {data[:500]}")
                 return []
         
         # pbixray-mcp-server returns a simple list of table names
         if isinstance(data, list):
-            # Simple list of names
-            tables = []
-            for name in data:
-                if isinstance(name, str):
-                    tables.append(Table(name=name, columns=[], row_count=None))
-            print(f"DEBUG: Created {len(tables)} Table objects")
+            tables = [Table(name=name, columns=[], row_count=None) for name in data if isinstance(name, str)]
+            print(f"Successfully parsed {len(tables)} tables")
             return tables
         
         return []
