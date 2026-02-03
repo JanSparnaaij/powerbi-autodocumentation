@@ -53,23 +53,16 @@ class PBIXRayClient:
         result = await self.client.call_tool("get_tables", {})
         data = self._parse_result(result)
         
-        # Handle case where data might be a string or not a list
-        if isinstance(data, str):
-            print(f"Warning: get_tables returned string: {data[:200]}...")
-            return []
-        if not isinstance(data, list):
-            print(f"Warning: get_tables returned non-list type: {type(data)}")
-            return []
+        # pbixray-mcp-server returns a simple list of table names
+        if isinstance(data, list):
+            # Simple list of names
+            tables = []
+            for name in data:
+                if isinstance(name, str):
+                    tables.append(Table(name=name, columns=[], row_count=None))
+            return tables
         
-        tables = []
-        for table_data in data:
-            if isinstance(table_data, dict):
-                tables.append(Table(
-                    name=table_data.get("name", ""),
-                    columns=table_data.get("columns", []),
-                    row_count=table_data.get("row_count")
-                ))
-        return tables
+        return []
     
     async def get_measures(self) -> list[Measure]:
         """Get all measures from the loaded model."""
@@ -138,7 +131,14 @@ class PBIXRayClient:
     async def get_model_summary(self) -> dict:
         """Get summary statistics about the model."""
         result = await self.client.call_tool("get_model_summary", {})
-        return self._parse_result(result)
+        data = self._parse_result(result)
+        
+        # If string, wrap in dict; otherwise return as-is
+        if isinstance(data, str):
+            return {"summary_text": data}
+        if isinstance(data, dict):
+            return data
+        return {}
     
     def _parse_result(self, result: Any) -> Any:
         """Parse MCP tool result and extract content."""

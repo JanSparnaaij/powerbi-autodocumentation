@@ -30,7 +30,7 @@ def generate_home_page(
 |--------|-------|
 | Tables | {table_count} |
 | Measures | {measure_count} |
-| Model Size | {summary.get('size_bytes', 'N/A')} bytes |
+| Model Size | {summary.get('size_bytes', 'N/A') if isinstance(summary, dict) else 'N/A'} bytes |
 
 ## Quick Navigation
 
