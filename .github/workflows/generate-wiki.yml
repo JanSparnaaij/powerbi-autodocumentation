@@ -11,7 +11,7 @@ on:
       pbix_path:
         description: 'Path to PBIX file'
         required: true
-        default: 'models/SalesModel.pbix'
+        default: './pbixray-mcp-server/demo/AdventureWorks Sales.pbix'
 
 jobs:
   generate-docs:
