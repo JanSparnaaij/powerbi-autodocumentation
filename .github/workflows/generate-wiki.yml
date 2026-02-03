@@ -39,6 +39,15 @@ jobs:
           cd pbixray-mcp-server
           pip install -e .
           cd ..
+          
+      - name: Verify installation
+        run: |
+          echo "Python packages:"
+          pip list | grep -E "(pbix|mcp)"
+          echo "Checking pbixray-mcp-server structure:"
+          ls -la pbixray-mcp-server/
+          echo "Python path:"
+          python -c "import sys; print('\n'.join(sys.path))"
       
       - name: Find PBIX files
         id: find-pbix
