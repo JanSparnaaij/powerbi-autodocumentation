@@ -120,7 +120,7 @@ The pipeline automatically generates documentation when you push PBIX files:
 4. **Enable GitHub Pages** (optional):
    - Go to Settings → Pages
    - Source: Deploy from a branch
-   - Branch: `main` or `master`, folder: `/docs`
+   - Branch: `main`, folder: `/docs`
    - Your docs will be at `https://yourusername.github.io/repo-name/`
 
 ### Manual Workflow Dispatch
