@@ -55,14 +55,21 @@ class PBIXRayClient:
         
         # Handle string response (Python-formatted list with <StringArray> header)
         if isinstance(data, str):
+            print(f"DEBUG: Tables data is string, length={len(data)}")
+            print(f"DEBUG: First 200 chars: {data[:200]}")
+            
             # Remove <StringArray> header if present
             if data.strip().startswith('<StringArray>'):
+                print("DEBUG: Removing <StringArray> header")
                 data = data.strip()[len('<StringArray>'):].strip()
+                print(f"DEBUG: After header removal, first 200 chars: {data[:200]}")
             
             try:
                 import ast
                 # Use ast.literal_eval for Python-formatted lists (single quotes, etc.)
+                print("DEBUG: Attempting ast.literal_eval")
                 data = ast.literal_eval(data)
+                print(f"DEBUG: Successfully parsed to list with {len(data)} items")
             except (ValueError, SyntaxError) as e:
                 print(f"Warning: Could not parse tables string: {e}")
                 print(f"First 500 chars: {data[:500]}")

@@ -13,6 +13,11 @@ def generate_er_diagram(
     connected_tables = set()
     
     for rel in relationships:
+        # Skip relationships with missing table names
+        if not rel.from_table or not rel.to_table:
+            print(f"Warning: Skipping relationship with empty table name: from='{rel.from_table}' to='{rel.to_table}'")
+            continue
+        
         connected_tables.add(rel.from_table)
         connected_tables.add(rel.to_table)
         
