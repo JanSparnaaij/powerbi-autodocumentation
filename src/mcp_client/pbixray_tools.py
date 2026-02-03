@@ -146,13 +146,14 @@ class PBIXRayClient:
                 # Extract fields with fallbacks
                 from_table = rel_data.get("FromTableName") or rel_data.get("FromTable") or ""
                 to_table_raw = rel_data.get("ToTableName") or rel_data.get("ToTable")
-                to_table = to_table_raw if to_table_raw is not None else ""
                 
-                # Debug and skip relationships with None to_table (auto-date relationships)
+                # Handle auto-date relationships with None to_table (replace with "LocalDateTable")
                 if to_table_raw is None:
+                    to_table = "LocalDateTable"
                     from_col = rel_data.get("FromColumnName") or rel_data.get("FromColumn") or ""
-                    print(f"DEBUG: Skipping auto-date relationship: {from_table}[{from_col}] -> LocalDateTable (None)")
-                    continue
+                    print(f"DEBUG: Auto-date relationship: {from_table}[{from_col}] -> LocalDateTable")
+                else:
+                    to_table = to_table_raw if to_table_raw else ""
                 
                 # Skip if either table name is empty string
                 if not from_table or not to_table:
