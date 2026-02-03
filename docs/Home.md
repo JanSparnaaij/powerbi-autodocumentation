@@ -1,13 +1,13 @@
-# AdventureWorks Sales - Semantic Model Documentation
+# Fabrikam Company Sales Report - Semantic Model Documentation
 
-> Auto-generated on 2026-02-03 07:32 UTC
+> Auto-generated on 2026-02-03 14:45 UTC
 
 ## Model Overview
 
 | Metric | Value |
 |--------|-------|
 | Tables | 0 |
-| Measures | 1 |
+| Measures | 41 |
 | Model Size | N/A bytes |
 
 ## Quick Navigation
