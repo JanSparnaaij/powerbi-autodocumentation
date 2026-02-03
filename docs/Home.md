@@ -1,6 +1,6 @@
 # Fabrikam Company Sales Report - Semantic Model Documentation
 
-> Auto-generated on 2026-02-03 14:45 UTC
+> Auto-generated on 2026-02-03 14:57 UTC
 
 ## Model Overview
 
