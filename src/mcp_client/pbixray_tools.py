@@ -54,7 +54,9 @@ class PBIXRayClient:
         data = self._parse_result(result)
         
         # Debug: print to see structure
-        print(f"DEBUG: get_tables data type: {type(data)}, len: {len(data) if isinstance(data, list) else 'N/A'}")
+        print(f"DEBUG: get_tables data type: {type(data)}")
+        if isinstance(data, str):
+            print(f"DEBUG: Tables string (first 500 chars): {data[:500]}")
         if isinstance(data, list) and len(data) > 0:
             print(f"DEBUG: First table item: type={type(data[0])}, value={data[0]}")
         
@@ -64,7 +66,8 @@ class PBIXRayClient:
                 import json
                 data = json.loads(data)
             except json.JSONDecodeError:
-                print(f"Warning: Could not parse tables string as JSON")
+                print(f"Warning: Could not parse tables string as JSON, treating as plain text")
+                # Maybe it's already a string array representation
                 return []
         
         # pbixray-mcp-server returns a simple list of table names
@@ -131,12 +134,12 @@ class PBIXRayClient:
         for rel_data in data:
             if isinstance(rel_data, dict):
                 relationships.append(Relationship(
-                    from_table=rel_data.get("FromTableName", rel_data.get("FromTable", "")),
-                    from_column=rel_data.get("FromColumnName", rel_data.get("FromColumn", "")),
-                to_table=rel_data.get("ToTableName", rel_data.get("ToTable", "")),
-                to_column=rel_data.get("ToColumnName", rel_data.get("ToColumn", "")),
+                    from_table=rel_data.get("FromTableName") or rel_data.get("FromTable") or "",
+                    from_column=rel_data.get("FromColumnName") or rel_data.get("FromColumn") or "",
+                to_table=rel_data.get("ToTableName") or rel_data.get("ToTable") or "",
+                to_column=rel_data.get("ToColumnName") or rel_data.get("ToColumn") or "",
                 is_active=bool(rel_data.get("IsActive", rel_data.get("is_active", True))),
-                cross_filter_direction=rel_data.get("CrossFilteringBehavior", rel_data.get("CrossFilterDirection", "OneWay"))
+                cross_filter_direction=rel_data.get("CrossFilteringBehavior") or rel_data.get("CrossFilterDirection") or "OneWay"
             ))
         return relationships
     
