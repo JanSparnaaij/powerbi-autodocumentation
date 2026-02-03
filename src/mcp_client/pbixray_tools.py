@@ -62,10 +62,15 @@ class PBIXRayClient:
             if data.strip().startswith('<StringArray>'):
                 print("DEBUG: Removing <StringArray> header")
                 data = data.strip()[len('<StringArray>'):].strip()
-                print(f"DEBUG: After header removal, first 200 chars: {data[:200]}")
             
             try:
                 import ast
+                import re
+                # Clean up excessive whitespace that breaks ast.literal_eval
+                # Replace multiple spaces/newlines between items with single space
+                data = re.sub(r'\s+', ' ', data)
+                print(f"DEBUG: After whitespace cleanup, first 200 chars: {data[:200]}")
+                
                 # Use ast.literal_eval for Python-formatted lists (single quotes, etc.)
                 print("DEBUG: Attempting ast.literal_eval")
                 data = ast.literal_eval(data)
@@ -132,16 +137,28 @@ class PBIXRayClient:
             return []
         
         relationships = []
-        for rel_data in data:
+        for i, rel_data in enumerate(data):
             if isinstance(rel_data, dict):
+                # Extract fields with fallbacks
+                from_table = rel_data.get("FromTableName") or rel_data.get("FromTable") or ""
+                to_table = rel_data.get("ToTableName") or rel_data.get("ToTable") or ""
+                
+                # Debug empty table names
+                if not from_table or not to_table:
+                    print(f"DEBUG: Relationship {i} has empty table name(s):")
+                    print(f"  All keys: {list(rel_data.keys())}")
+                    print(f"  FromTableName={rel_data.get('FromTableName')}, FromTable={rel_data.get('FromTable')}")
+                    print(f"  ToTableName={rel_data.get('ToTableName')}, ToTable={rel_data.get('ToTable')}")
+                    print(f"  Full data: {rel_data}")
+                
                 relationships.append(Relationship(
-                    from_table=rel_data.get("FromTableName") or rel_data.get("FromTable") or "",
+                    from_table=from_table,
                     from_column=rel_data.get("FromColumnName") or rel_data.get("FromColumn") or "",
-                to_table=rel_data.get("ToTableName") or rel_data.get("ToTable") or "",
-                to_column=rel_data.get("ToColumnName") or rel_data.get("ToColumn") or "",
-                is_active=bool(rel_data.get("IsActive", rel_data.get("is_active", True))),
-                cross_filter_direction=rel_data.get("CrossFilteringBehavior") or rel_data.get("CrossFilterDirection") or "OneWay"
-            ))
+                    to_table=to_table,
+                    to_column=rel_data.get("ToColumnName") or rel_data.get("ToColumn") or "",
+                    is_active=bool(rel_data.get("IsActive", rel_data.get("is_active", True))),
+                    cross_filter_direction=rel_data.get("CrossFilteringBehavior") or rel_data.get("CrossFilterDirection") or "OneWay"
+                ))
         return relationships
     
     async def get_schema(self, table_name: str) -> dict:
