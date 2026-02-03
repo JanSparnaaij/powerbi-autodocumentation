@@ -53,6 +53,11 @@ class PBIXRayClient:
         result = await self.client.call_tool("get_tables", {})
         data = self._parse_result(result)
         
+        # Debug: print to see structure
+        print(f"DEBUG: get_tables data type: {type(data)}, len: {len(data) if isinstance(data, list) else 'N/A'}")
+        if isinstance(data, list) and len(data) > 0:
+            print(f"DEBUG: First table item: type={type(data[0])}, value={data[0]}")
+        
         # pbixray-mcp-server returns a simple list of table names
         if isinstance(data, list):
             # Simple list of names
@@ -60,6 +65,7 @@ class PBIXRayClient:
             for name in data:
                 if isinstance(name, str):
                     tables.append(Table(name=name, columns=[], row_count=None))
+            print(f"DEBUG: Created {len(tables)} Table objects")
             return tables
         
         return []
