@@ -8,20 +8,20 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| CityID | Unknown |  |
-| CityName | Unknown |  |
-| LatestRecordedPopulation | Unknown |  |
-| StateProvinceCode | Unknown |  |
-| StateProvinceName | Unknown |  |
-| SalesTerritory | Unknown |  |
-| CountryName | Unknown |  |
-| FormalName | Unknown |  |
-| IsoAlpha3Code | Unknown |  |
-| IsoNumericCode | Unknown |  |
-| CountryType | Unknown |  |
-| Continent | Unknown |  |
-| Region | Unknown |  |
-| Subregion | Unknown |  |
+| CityID | Int64 |  |
+| CityName | string |  |
+| LatestRecordedPopulation | Float64 |  |
+| StateProvinceCode | string |  |
+| StateProvinceName | string |  |
+| SalesTerritory | string |  |
+| CountryName | string |  |
+| FormalName | string |  |
+| IsoAlpha3Code | string |  |
+| IsoNumericCode | Int64 |  |
+| CountryType | string |  |
+| Continent | string |  |
+| Region | string |  |
+| Subregion | string |  |
 
 
 ---

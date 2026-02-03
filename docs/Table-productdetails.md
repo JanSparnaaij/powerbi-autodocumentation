@@ -8,9 +8,9 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| StockItemID | Unknown |  |
-| CountryOfManufacture | Unknown |  |
-| Tags | Unknown |  |
+| StockItemID | Int64 |  |
+| CountryOfManufacture | string |  |
+| Tags | string |  |
 
 
 ---

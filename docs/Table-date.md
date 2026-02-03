@@ -8,13 +8,13 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| Date | Unknown |  |
-| Year | Unknown |  |
-| Month | Unknown |  |
-| Quarter | Unknown |  |
-| MonthName | Unknown |  |
-| MonthNameShort | Unknown |  |
-| StartOfMonth | Unknown |  |
+| Date | datetime64[ns] |  |
+| Year | Int64 |  |
+| Month | Int64 |  |
+| Quarter | Int64 |  |
+| MonthName | string |  |
+| MonthNameShort | string |  |
+| StartOfMonth | datetime64[ns] |  |
 
 
 ---

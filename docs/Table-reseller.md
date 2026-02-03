@@ -8,19 +8,19 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| PostalCityID | Unknown |  |
-| PhoneNumber | Unknown |  |
-| FaxNumber | Unknown |  |
-| WebsiteURL | Unknown |  |
-| DeliveryAddressLine1 | Unknown |  |
-| DeliveryAddressLine2 | Unknown |  |
-| DeliveryPostalCode | Unknown |  |
-| PostalAddressLine1 | Unknown |  |
-| PostalAddressLine2 | Unknown |  |
-| PostalPostalCode | Unknown |  |
-| ResellerID | Unknown |  |
-| ResellerName | Unknown |  |
-| ResellerCompany | Unknown |  |
+| PostalCityID | Int64 |  |
+| PhoneNumber | string |  |
+| FaxNumber | string |  |
+| WebsiteURL | string |  |
+| DeliveryAddressLine1 | string |  |
+| DeliveryAddressLine2 | string |  |
+| DeliveryPostalCode | Int64 |  |
+| PostalAddressLine1 | string |  |
+| PostalAddressLine2 | string |  |
+| PostalPostalCode | Int64 |  |
+| ResellerID | Int64 |  |
+| ResellerName | string |  |
+| ResellerCompany | string |  |
 
 ## Measures
 

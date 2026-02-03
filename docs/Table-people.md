@@ -8,11 +8,11 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| PersonID | Unknown |  |
-| FullName | Unknown |  |
-| PreferredName | Unknown |  |
-| IsSalesperson | Unknown |  |
-| EmailAddress | Unknown |  |
+| PersonID | Int64 |  |
+| FullName | string |  |
+| PreferredName | string |  |
+| IsSalesperson | bool |  |
+| EmailAddress | string |  |
 
 
 ---

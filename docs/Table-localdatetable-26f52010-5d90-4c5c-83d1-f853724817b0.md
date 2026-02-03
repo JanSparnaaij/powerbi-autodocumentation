@@ -8,12 +8,12 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| Year | Unknown |  |
-| MonthNo | Unknown |  |
-| Month | Unknown |  |
-| QuarterNo | Unknown |  |
-| Quarter | Unknown |  |
-| Day | Unknown |  |
+| Year | Int64 |  |
+| MonthNo | Int64 |  |
+| Month | string |  |
+| QuarterNo | Int64 |  |
+| Quarter | string |  |
+| Day | Int64 |  |
 
 
 ---

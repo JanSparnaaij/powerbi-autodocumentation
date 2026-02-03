@@ -8,14 +8,14 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| PurchaseOrderID | Unknown |  |
-| OrderDate | Unknown |  |
-| ContactPersonID | Unknown |  |
-| ExpectedDeliveryDate | Unknown |  |
-| PurchaseOrderLineID | Unknown |  |
-| StockItemID | Unknown |  |
-| OrderedOuters | Unknown |  |
-| ExpectedUnitPricePerOuter | Unknown |  |
+| PurchaseOrderID | Int64 |  |
+| OrderDate | datetime64[ns] |  |
+| ContactPersonID | Int64 |  |
+| ExpectedDeliveryDate | datetime64[ns] |  |
+| PurchaseOrderLineID | Int64 |  |
+| StockItemID | Int64 |  |
+| OrderedOuters | Float64 |  |
+| ExpectedUnitPricePerOuter | Float64 |  |
 
 ## Measures
 

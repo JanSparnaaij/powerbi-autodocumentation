@@ -8,17 +8,17 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| StockItemID | Unknown |  |
-| StockItemName | Unknown |  |
-| SupplierID | Unknown |  |
-| Size | Unknown |  |
-| IsChillerStock | Unknown |  |
-| TaxRate | Unknown |  |
-| UnitPrice | Unknown |  |
-| RecommendedRetailPrice | Unknown |  |
-| TypicalWeightPerUnit | Unknown |  |
-| StockGroupName | Unknown |  |
-| StockGroupID | Unknown |  |
+| StockItemID | Int64 |  |
+| StockItemName | string |  |
+| SupplierID | Int64 |  |
+| Size | string |  |
+| IsChillerStock | bool |  |
+| TaxRate | Int64 |  |
+| UnitPrice | Float64 |  |
+| RecommendedRetailPrice | Float64 |  |
+| TypicalWeightPerUnit | Float64 |  |
+| StockGroupName | string |  |
+| StockGroupID | Int64 |  |
 
 ## Measures
 

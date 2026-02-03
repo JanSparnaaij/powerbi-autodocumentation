@@ -8,19 +8,19 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| CustomerID | Unknown |  |
-| Address | Unknown |  |
-| Age | Unknown |  |
-| BrandAffinity | Unknown |  |
-| City | Unknown |  |
-| Country | Unknown |  |
-| FullName | Unknown |  |
-| Generation | Unknown |  |
-| InterestAffinity1 | Unknown |  |
-| InterestAffinity2 | Unknown |  |
-| ResellerID | Unknown |  |
-| State | Unknown |  |
-| ZipCode | Unknown |  |
+| CustomerID | string |  |
+| Address | string |  |
+| Age | Int64 |  |
+| BrandAffinity | string |  |
+| City | string |  |
+| Country | string |  |
+| FullName | string |  |
+| Generation | string |  |
+| InterestAffinity1 | string |  |
+| InterestAffinity2 | string |  |
+| ResellerID | Int64 |  |
+| State | string |  |
+| ZipCode | string |  |
 
 ## Measures
 

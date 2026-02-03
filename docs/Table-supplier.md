@@ -8,11 +8,11 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| SupplierID | Unknown |  |
-| SupplierName | Unknown |  |
-| SupplierCategoryID | Unknown |  |
-| WebsiteURL | Unknown |  |
-| SupplierCategoryName | Unknown |  |
+| SupplierID | Int64 |  |
+| SupplierName | string |  |
+| SupplierCategoryID | Int64 |  |
+| WebsiteURL | string |  |
+| SupplierCategoryName | string |  |
 
 ## Measures
 

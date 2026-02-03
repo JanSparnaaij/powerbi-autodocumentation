@@ -8,19 +8,19 @@
 
 | Column Name | Data Type | Description |
 |-------------|-----------|-------------|
-| InvoiceLineID | Unknown |  |
-| InvoiceID | Unknown |  |
-| StockItemID | Unknown |  |
-| Quantity | Unknown |  |
-| UnitPrice | Unknown |  |
-| TaxRate | Unknown |  |
-| TaxAmount | Unknown |  |
-| ResellerID | Unknown |  |
-| SalespersonPersonID | Unknown |  |
-| InvoiceDate | Unknown |  |
-| LineProfit | Unknown |  |
-| ExtendedPrice | Unknown |  |
-| Sales Amount | Unknown |  |
+| InvoiceLineID | Int64 |  |
+| InvoiceID | Int64 |  |
+| StockItemID | Int64 |  |
+| Quantity | Int64 |  |
+| UnitPrice | Float64 |  |
+| TaxRate | Int64 |  |
+| TaxAmount | Float64 |  |
+| ResellerID | Int64 |  |
+| SalespersonPersonID | Int64 |  |
+| InvoiceDate | datetime64[ns] |  |
+| LineProfit | Float64 |  |
+| ExtendedPrice | Float64 |  |
+| Sales Amount | Float64 |  |
 
 ## Measures
 
