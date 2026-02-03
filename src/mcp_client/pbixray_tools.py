@@ -58,6 +58,15 @@ class PBIXRayClient:
         if isinstance(data, list) and len(data) > 0:
             print(f"DEBUG: First table item: type={type(data[0])}, value={data[0]}")
         
+        # If string, try to parse as JSON array
+        if isinstance(data, str):
+            try:
+                import json
+                data = json.loads(data)
+            except json.JSONDecodeError:
+                print(f"Warning: Could not parse tables string as JSON")
+                return []
+        
         # pbixray-mcp-server returns a simple list of table names
         if isinstance(data, list):
             # Simple list of names
@@ -122,12 +131,12 @@ class PBIXRayClient:
         for rel_data in data:
             if isinstance(rel_data, dict):
                 relationships.append(Relationship(
-                    from_table=rel_data.get("FromTable", rel_data.get("from_table", "")),
-                    from_column=rel_data.get("FromColumn", rel_data.get("from_column", "")),
-                to_table=rel_data.get("ToTable", rel_data.get("to_table", "")),
-                to_column=rel_data.get("ToColumn", rel_data.get("to_column", "")),
-                is_active=rel_data.get("IsActive", rel_data.get("is_active", True)),
-                cross_filter_direction=rel_data.get("CrossFilterDirection", rel_data.get("cross_filter_direction", "OneWay"))
+                    from_table=rel_data.get("FromTableName", rel_data.get("FromTable", "")),
+                    from_column=rel_data.get("FromColumnName", rel_data.get("FromColumn", "")),
+                to_table=rel_data.get("ToTableName", rel_data.get("ToTable", "")),
+                to_column=rel_data.get("ToColumnName", rel_data.get("ToColumn", "")),
+                is_active=bool(rel_data.get("IsActive", rel_data.get("is_active", True))),
+                cross_filter_direction=rel_data.get("CrossFilteringBehavior", rel_data.get("CrossFilterDirection", "OneWay"))
             ))
         return relationships
     
