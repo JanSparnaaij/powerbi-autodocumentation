@@ -14,10 +14,7 @@ erDiagram
     People ||--o{ PurchaseOrders : "ContactPersonID"
     Product ||--o{ ProductDetails : "StockItemID"
     Reseller ||--o{ Sales : "ResellerID"
-     ||--o{ PurchaseOrders : "ExpectedDeliveryDate"
     Reseller ||--o{ Customer : "ResellerID"
-     ||--o{ Date : "Date"
-     ||--o{ Date : "StartOfMonth"
     Date ||--o{ Sales : "InvoiceDate"
     Date ||--o{ PurchaseOrders : "OrderDate"
 ```
