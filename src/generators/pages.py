@@ -107,7 +107,8 @@ def generate_table_page(
                 expr = expr[:50] + "..." if len(expr) > 50 else expr
             else:
                 expr = ""
-            measures_rows.append(f"| [{m.name}](Measures#{_slugify(m.name)}) | `{expr}` |")
+            # Link to Measures page without anchor - GitHub's auto-generated anchors are unpredictable
+            measures_rows.append(f"| [{m.name}](Measures.md) | `{expr}` |")
         
         measures_section = f"""
 ## Measures
