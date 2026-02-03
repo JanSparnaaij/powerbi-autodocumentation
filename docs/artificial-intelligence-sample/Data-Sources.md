@@ -1,0 +1,50 @@
+# Data Sources
+
+## Power Query / M Code
+
+The following Power Query code defines the data sources and transformations for this model:
+
+```powerquery
+[
+  {
+    "TableName": "Accounts",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    AccountTbl_Table = Source{[Item=\"AccountTbl\",Kind=\"Table\"]}[Data],\n    #\"Changed Type\" = Table.TransformColumnTypes(AccountTbl_Table,{{\"AccountSeq\", Int64.Type}, {\"AccountID\", type text}, {\"Account Name\", type text}, {\"Street\", type text}, {\"City\", type text}, {\"State or Province\", type any}, {\"Postal Code\", type text}, {\"Country\", type text}, {\"Latitude\", type number}, {\"Longitude\", type number}, {\"Territory\", type text}, {\"Region\", type text}, {\"Phone\", type text}, {\"Number of Employees\", Int64.Type}, {\"Annual Revenue\", Int64.Type}, {\"IndustrySeq\", Int64.Type}, {\"Industry\", type text}, {\"AccountOwnerSeq\", Int64.Type}, {\"Account Owner\", type text}})\nin\n    #\"Changed Type\""
+  },
+  {
+    "TableName": "Industries",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    IndustryTbl_Table = Source{[Item=\"IndustryTbl\",Kind=\"Table\"]}[Data],\n    #\"Changed Type\" = Table.TransformColumnTypes(IndustryTbl_Table,{{\"IndustrySeq\", Int64.Type}, {\"Industry\", type text}, {\"Factor\", Int64.Type}}),\n    #\"Removed Columns\" = Table.RemoveColumns(#\"Changed Type\",{\"Factor\"})\nin\n    #\"Removed Columns\""
+  },
+  {
+    "TableName": "Opportunities",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    OpportunityTbl_Table = Source{[Item=\"OpportunityTbl\",Kind=\"Table\"]}[Data],\n    #\"Removed Other Columns\" = Table.SelectColumns(OpportunityTbl_Table,{\"OpportunitySeq\", \"CreatedonDate\", \"DaysToClose\", \"CloseDate\", \"SystemUserSeq\", \"Opportunity Owner Name\", \"AccountSeq\", \"ProductSeq\", \"ProductName\", \"CampaignSeq\", \"Campaign Name\", \"Budget\", \"Topic\", \"Purchase Process\", \"Decision Maker Identified\", \"Discount\", \"Value\", \"PipelineStep\", \"Probability (raw)\", \"Probability\", \"Rating\", \"Status\"}),\n    #\"Changed Type\" = Table.TransformColumnTypes(#\"Removed Other Columns\",{{\"OpportunitySeq\", Int64.Type}, {\"CreatedonDate\", type date}, {\"DaysToClose\", Int64.Type}, {\"CloseDate\", type date}, {\"SystemUserSeq\", type text}, {\"Opportunity Owner Name\", type text}, {\"AccountSeq\", Int64.Type}, {\"ProductSeq\", Int64.Type}, {\"ProductName\", type text}, {\"Budget\", Int64.Type}, {\"Topic\", type text}, {\"Purchase Process\", type text}, {\"Decision Maker Identified\", type logical}, {\"Discount\", type number}, {\"Value\", Int64.Type}, {\"PipelineStep\", type text}, {\"Probability (raw)\", type number}, {\"Probability\", type number}, {\"Rating\", type text}, {\"Status\", type text}}),\n    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type\",{{\"CreatedonDate\", \"Opportunity Created On\"}, {\"ProductName\", \"Product Name\"}})\nin\n    #\"Renamed Columns\""
+  },
+  {
+    "TableName": "Owners",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    OwnerTbl_Table = Source{[Item=\"OwnerTbl\",Kind=\"Table\"]}[Data],\n    #\"Changed Type\" = Table.TransformColumnTypes(OwnerTbl_Table,{{\"Owner\", type text}, {\"Factor\", Int64.Type}}),\n    #\"Removed Columns\" = Table.RemoveColumns(#\"Changed Type\",{\"Factor\"}),\n    #\"Changed Type1\" = Table.TransformColumnTypes(#\"Removed Columns\",{{\"SystemUserSeq\", Int64.Type}}),\n    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type1\",{{\"Owner\", \"Sales owner\"}})\nin\n    #\"Renamed Columns\""
+  },
+  {
+    "TableName": "Products",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    ProductTbl_Table = Source{[Item=\"ProductTbl\",Kind=\"Table\"]}[Data],\n    #\"Removed Columns\" = Table.RemoveColumns(ProductTbl_Table,{\"Factor\"}),\n    #\"Changed Type\" = Table.TransformColumnTypes(#\"Removed Columns\",{{\"ProductSeq\", Int64.Type}, {\"Product\", type text}, {\"Product LOB\", type text}, {\"MinOppValue\", Currency.Type}, {\"MaxOppValue\", Currency.Type}}),\n    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type\",{{\"Product LOB\", \"Product category\"}})\nin\n    #\"Renamed Columns\""
+  },
+  {
+    "TableName": "Cases",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    IncidentTbl_Table = Source{[Item=\"IncidentTbl\",Kind=\"Table\"]}[Data],\n    #\"Removed Other Columns\" = Table.SelectColumns(IncidentTbl_Table,{\"IncidentSeq\", \"CreatedOn\", \"Resolution Minutes\", \"Minutes to First Contact\", \"Activities\", \"Status\", \"SystemUserSeq\", \"Owner\", \"AccountSeq\", \"ProductSeq\", \"Title\", \"Origin\", \"Severity\", \"Is Escalated\", \"Is SLA Violation\", \"Subject\", \"CustomerSatScore\"}),\n    #\"Inserted Text Before Delimiter\" = Table.AddColumn(#\"Removed Other Columns\", \"CSAT\", each Text.BeforeDelimiter([CustomerSatScore], \"-\"), type text),\n    #\"Changed Type\" = Table.TransformColumnTypes(#\"Inserted Text Before Delimiter\",{{\"CreatedOn\", type date}, {\"Resolution Minutes\", Int64.Type}, {\"Status\", type text}, {\"Owner\", type text}, {\"Title\", type text}, {\"Origin\", type text}, {\"Severity\", type text}, {\"Is Escalated\", type logical}, {\"Is SLA Violation\", type logical}, {\"Subject\", type text}, {\"CustomerSatScore\", type text}, {\"CSAT\", Int64.Type}, {\"Minutes to First Contact\", Int64.Type}, {\"Activities\", Int64.Type}, {\"IncidentSeq\", Int64.Type}, {\"SystemUserSeq\", Int64.Type}, {\"AccountSeq\", Int64.Type}, {\"ProductSeq\", Int64.Type}}),\n    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type\",{{\"IncidentSeq\", \"CaseSeq\"}, {\"CustomerSatScore\", \"CSAT Label\"}, {\"CreatedOn\", \"Case Created On\"}, {\"Owner\", \"Agent\"}})\nin\n    #\"Renamed Columns\""
+  },
+  {
+    "TableName": "Contacts",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    ContactTbl_Table = Source{[Item=\"ContactTbl\",Kind=\"Table\"]}[Data],\n    #\"Changed Type\" = Table.TransformColumnTypes(ContactTbl_Table,{{\"ContactID\", type text}, {\"Contact\", type text}, {\"Job Title\", type text}, {\"Street\", type text}, {\"City\", type text}, {\"State or Province\", type text}, {\"Postal Code\", type text}, {\"Country\", type text}, {\"Latitude\", type number}, {\"Longitude\", type number}, {\"Phone\", type text}, {\"ContactSeq\", Int64.Type}, {\"AccountSeq\", Int64.Type}})\nin\n    #\"Changed Type\""
+  },
+  {
+    "TableName": "Territories",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    TerritoriesTbl_Table = Source{[Item=\"TerritoriesTbl\",Kind=\"Table\"]}[Data],\n    #\"Changed Type\" = Table.TransformColumnTypes(TerritoriesTbl_Table,{{\"Country\", type text}, {\"State Or Province Abbreviation\", type text}, {\"Region\", type text}, {\"Territory\", type text}})\nin\n    #\"Changed Type\""
+  },
+  {
+    "TableName": "Campaigns",
+    "Expression": "let\n    Source = Excel.Workbook(File.Contents(\"C:\\Users\\misewell\\OneDrive - Microsoft\\Documents\\GitHub\\ContosoBI\\Contoso - Generic\\Contoso - PowerBI Source Data.xlsx\"), null, true),\n    CampaignsTbl_Table = Source{[Item=\"CampaignsTbl\",Kind=\"Table\"]}[Data],\n    #\"Changed Type\" = Table.TransformColumnTypes(CampaignsTbl_Table,{{\"CampaignSeq\", Int64.Type}, {\"Type\", type text}, {\"Name\", type text}, {\"Factor\", Int64.Type}}),\n    #\"Renamed Columns\" = Table.RenameColumns(#\"Changed Type\",{{\"Name\", \"Campaign Name\"}})\nin\n    #\"Renamed Columns\""
+  }
+]
+```
+
+---
+
+[← Back to Home](Home.md)
