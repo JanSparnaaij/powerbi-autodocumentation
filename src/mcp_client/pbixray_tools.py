@@ -69,6 +69,10 @@ class PBIXRayClient:
         result = await self.client.call_tool("get_dax_measures", {})
         data = self._parse_result(result)
         
+        # Debug: print first measure to see structure
+        if isinstance(data, list) and len(data) > 0:
+            print(f"DEBUG: First measure structure: {data[0]}")
+        
         # Handle case where data might be a string or not a list
         if isinstance(data, str):
             print(f"Warning: get_measures returned string: {data[:200]}...")
