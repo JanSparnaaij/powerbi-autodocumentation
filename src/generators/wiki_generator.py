@@ -55,10 +55,14 @@ class WikiGenerator:
                 
                 print(f"Found {len(tables)} tables, {len(measures)} measures, {len(relationships)} relationships")
                 
-                # Get schema for each table
-                schemas = {}
+                # Get schema for each table and update table columns
                 for table in tables:
-                    schemas[table.name] = await pbi.get_schema(table.name)
+                    schema = await pbi.get_schema(table.name)
+                    # Update table columns from schema
+                    if isinstance(schema, list):
+                        table.columns = schema
+                    elif isinstance(schema, dict) and 'columns' in schema:
+                        table.columns = schema['columns']
                 
                 # Get Power Query code
                 power_query = await pbi.get_power_query()
@@ -80,7 +84,7 @@ class WikiGenerator:
         for table in tables:
             page_name = f"Table-{self._slugify(table.name)}"
             self._write_page(page_name, generate_table_page(
-                table, schemas[table.name], measures
+                table, measures
             ))
         
         self._write_page("Measures", generate_measures_page(measures))

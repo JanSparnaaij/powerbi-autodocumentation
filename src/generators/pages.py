@@ -52,22 +52,29 @@ This documentation is automatically generated from the PBIX file. For questions 
 
 def generate_table_page(
     table: Table,
-    schema: dict,
     measures: list[Measure]
 ) -> str:
     """Generate a documentation page for a table."""
     
     # Build columns table
     columns_rows = []
-    for col in table.columns:
-        col_name = col.get("name", "")
-        col_type = col.get("dataType", "Unknown")
-        col_desc = col.get("description", "")
-        # Escape pipe characters in descriptions
-        col_desc = col_desc.replace("|", "\\|") if col_desc else ""
-        columns_rows.append(f"| {col_name} | {col_type} | {col_desc} |")
+    if table.columns:
+        for col in table.columns:
+            # Handle both dict and object column formats
+            if isinstance(col, dict):
+                col_name = col.get("Name") or col.get("name") or col.get("ColumnName") or ""
+                col_type = col.get("DataType") or col.get("dataType") or col.get("data_type") or "Unknown"
+                col_desc = col.get("Description") or col.get("description") or ""
+            else:
+                col_name = getattr(col, 'name', getattr(col, 'Name', ''))
+                col_type = getattr(col, 'data_type', getattr(col, 'DataType', 'Unknown'))
+                col_desc = getattr(col, 'description', getattr(col, 'Description', ''))
+            
+            # Escape pipe characters in descriptions
+            col_desc = col_desc.replace("|", "\\|") if col_desc else ""
+            columns_rows.append(f"| {col_name} | {col_type} | {col_desc} |")
     
-    columns_table = "\n".join(columns_rows)
+    columns_table = "\n".join(columns_rows) if columns_rows else "| No columns available | | |"
     
     # Find measures in this table
     table_measures = [m for m in measures if m.table == table.name]
@@ -100,12 +107,6 @@ def generate_table_page(
 |-------------|-----------|-------------|
 {columns_table}
 {measures_section}
-
-## Source Query
-
-```powerquery
-{schema.get('source_query', 'N/A')}
-```
 
 ---
 
