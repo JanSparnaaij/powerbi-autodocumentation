@@ -1,0 +1,71 @@
+table BU
+	lineageTag: 6045a370-f2c6-4596-9a81-cf6324290d95
+
+	column 'BU Key'
+		dataType: double
+		isHidden
+		lineageTag: 428b702c-064d-4e50-b993-0334da6221ca
+		summarizeBy: none
+		sourceColumn: BU Key
+
+		annotation DataTypeAtRefresh = Double#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BU
+		dataType: string
+		lineageTag: e4b4c577-5f2e-4ec0-b78a-f3dee6a723f1
+		summarizeBy: none
+		sourceColumn: BU
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Division
+		dataType: string
+		lineageTag: 655f44a1-af04-4f89-8100-473fc6b06074
+		summarizeBy: none
+		sourceColumn: Division
+
+		annotation DataTypeAtRefresh = String#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Executive_id
+		dataType: int64
+		isHidden
+		lineageTag: a250d893-6bad-40ec-90a8-501d79c9e558
+		summarizeBy: none
+		sourceColumn: Executive_id
+
+		annotation DataTypeAtRefresh = Int64#####not a type
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy BUHierarchy
+		lineageTag: 1b21fc8c-27f7-4f38-801b-1cb3bd627d39
+
+		level Division
+			lineageTag: 6e47197e-2dcf-429f-aa7d-4299f7589a9f
+			column: Division
+
+		level BU
+			lineageTag: 7c8cbfca-e049-4248-b049-2d14ae716363
+			column: BU
+
+	partition BU = m
+		source =
+				let
+				    Source = Sql.Database(".", "IP", [Query="SELECT #(lf)       #(lf)      [Profit Center Key] [BU Key],#(lf)   BU,#(lf)   Division, Executive_id#(lf)  FROM [MDS].[mdm].[profitcenter]"]),
+				    #"Renamed Columns" = Table.RenameColumns(Source, {{"BU Key", "BU Key"}, {"BU", "BU"}, {"Division", "Division"}, {"Executive_id", "Executive_id"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {{"BU Key", type number}, {"BU", type text}, {"Division", type text}, {"Executive_id", Int64.Type}})
+				in
+				    #"Changed Type"
+

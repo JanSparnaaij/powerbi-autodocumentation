@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Customer Profitability Sample PBIX"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1845d452-eb0f-4ad5-b192-ca57b60176f5"
+  }
+}
