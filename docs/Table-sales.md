@@ -26,27 +26,27 @@
 
 | Measure | Expression |
 |---------|------------|
-| [Average Order](Measures#average-order) | `DIVIDE([Sales], [Sales Orders])` |
-| [Gross Margin](Measures#gross-margin) | `SUM(Sales[LineProfit])` |
-| [Gross Margin %](Measures#gross-margin-%) | `DIVIDE([Gross Margin], [Sales])` |
-| [Items](Measures#items) | `DISTINCTCOUNT(Sales[StockItemID])` |
-| [Sales](Measures#sales) | `SUM(Sales[Sales Amount])` |
-| [Sales Orders](Measures#sales-orders) | `DISTINCTCOUNT(Sales[InvoiceID])` |
-| [Sales Year over Year %](Measures#sales-year-over-year-%) | `VAR __PREV_YEAR = CALCULATE([Sales], DATEADD('Date...` |
-| [Units](Measures#units) | `SUM(Sales[Quantity])` |
-| [Highest Selling Product Sales](Measures#highest-selling-product-sales) | `VAR TopProduct = TOPN( 1, ALL('Product'), [Sales],...` |
-| [Total Sales Best Selling](Measures#total-sales-best-selling) | `VAR TopProduct = TOPN( 1, // Retrieve only the top...` |
-| [Best Selling Units Sold](Measures#best-selling-units-sold) | `VAR TopProduct = TOPN( 1, ALL('Product'), // Consi...` |
-| [Top units sold unit count](Measures#top-units-sold-unit-count) | `VAR TopProduct = TOPN( 1, // Retrieve only the top...` |
-| [Total Sales of Top Selling Unit](Measures#total-sales-of-top-selling-unit) | `VAR TopProduct = TOPN( 1, // Retrieve only the top...` |
-| [Profit of Best Selling Item](Measures#profit-of-best-selling-item) | `VAR TopProduct = TOPN( 1, ALL('Product'), [Sales],...` |
-| [Trend Icon](Measures#trend-icon) | `IF( [Sales Year over Year %] > 0, // If sales year...` |
-| [Sales by Average Order](Measures#sales-by-average-order) | `DIVIDE([Sales], [Sales Orders])` |
-| [SalesNet](Measures#salesnet) | `SUM('Sales'[Sales Amount]) - SUM('Sales'[UnitPrice...` |
-| [SalesExtendedPrice](Measures#salesextendedprice) | `SUMX( 'Sales', 'Sales'[ExtendedPrice] * 'Sales'[Un...` |
-| [Total Units Sold](Measures#total-units-sold) | `SUM('Sales'[Quantity])` |
-| [Sales Including VAT](Measures#sales-including-vat) | `SUM(Sales[Sales Amount]) * 1.21` |
-| [Netto Omzet incl BTW](Measures#netto-omzet-incl-btw) | `SUM(Sales[Sales Amount]) + SUM(Sales[TaxAmount])` |
+| [Average Order](Measures.md) | `DIVIDE([Sales], [Sales Orders])` |
+| [Gross Margin](Measures.md) | `SUM(Sales[LineProfit])` |
+| [Gross Margin %](Measures.md) | `DIVIDE([Gross Margin], [Sales])` |
+| [Items](Measures.md) | `DISTINCTCOUNT(Sales[StockItemID])` |
+| [Sales](Measures.md) | `SUM(Sales[Sales Amount])` |
+| [Sales Orders](Measures.md) | `DISTINCTCOUNT(Sales[InvoiceID])` |
+| [Sales Year over Year %](Measures.md) | `VAR __PREV_YEAR = CALCULATE([Sales], DATEADD('Date...` |
+| [Units](Measures.md) | `SUM(Sales[Quantity])` |
+| [Highest Selling Product Sales](Measures.md) | `VAR TopProduct = TOPN( 1, ALL('Product'), [Sales],...` |
+| [Total Sales Best Selling](Measures.md) | `VAR TopProduct = TOPN( 1, // Retrieve only the top...` |
+| [Best Selling Units Sold](Measures.md) | `VAR TopProduct = TOPN( 1, ALL('Product'), // Consi...` |
+| [Top units sold unit count](Measures.md) | `VAR TopProduct = TOPN( 1, // Retrieve only the top...` |
+| [Total Sales of Top Selling Unit](Measures.md) | `VAR TopProduct = TOPN( 1, // Retrieve only the top...` |
+| [Profit of Best Selling Item](Measures.md) | `VAR TopProduct = TOPN( 1, ALL('Product'), [Sales],...` |
+| [Trend Icon](Measures.md) | `IF( [Sales Year over Year %] > 0, // If sales year...` |
+| [Sales by Average Order](Measures.md) | `DIVIDE([Sales], [Sales Orders])` |
+| [SalesNet](Measures.md) | `SUM('Sales'[Sales Amount]) - SUM('Sales'[UnitPrice...` |
+| [SalesExtendedPrice](Measures.md) | `SUMX( 'Sales', 'Sales'[ExtendedPrice] * 'Sales'[Un...` |
+| [Total Units Sold](Measures.md) | `SUM('Sales'[Quantity])` |
+| [Sales Including VAT](Measures.md) | `SUM(Sales[Sales Amount]) * 1.21` |
+| [Netto Omzet incl BTW](Measures.md) | `SUM(Sales[Sales Amount]) + SUM(Sales[TaxAmount])` |
 
 
 ---

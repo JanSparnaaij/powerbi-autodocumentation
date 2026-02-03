@@ -21,13 +21,13 @@
 
 | Measure | Expression |
 |---------|------------|
-| [Spend](Measures#spend) | `SUMX(PurchaseOrders, PurchaseOrders[OrderedOuters]...` |
-| [Average Purchase Order](Measures#average-purchase-order) | `DIVIDE([Spend], [Purchase Orders])` |
-| [In Stock](Measures#in-stock) | `[Purchase Order Units in Stock]-[Units]` |
-| [Purchase Order Units](Measures#purchase-order-units) | `SUM(PurchaseOrders[OrderedOuters])` |
-| [Purchase Order Units in Stock](Measures#purchase-order-units-in-stock) | `SUMX(FILTER(PurchaseOrders, PurchaseOrders[Expecte...` |
-| [Purchase Order Units Planned](Measures#purchase-order-units-planned) | `SUMX(FILTER(PurchaseOrders, PurchaseOrders[Expecte...` |
-| [Purchase Orders](Measures#purchase-orders) | `DISTINCTCOUNT(PurchaseOrders[PurchaseOrderID])` |
+| [Spend](Measures.md) | `SUMX(PurchaseOrders, PurchaseOrders[OrderedOuters]...` |
+| [Average Purchase Order](Measures.md) | `DIVIDE([Spend], [Purchase Orders])` |
+| [In Stock](Measures.md) | `[Purchase Order Units in Stock]-[Units]` |
+| [Purchase Order Units](Measures.md) | `SUM(PurchaseOrders[OrderedOuters])` |
+| [Purchase Order Units in Stock](Measures.md) | `SUMX(FILTER(PurchaseOrders, PurchaseOrders[Expecte...` |
+| [Purchase Order Units Planned](Measures.md) | `SUMX(FILTER(PurchaseOrders, PurchaseOrders[Expecte...` |
+| [Purchase Orders](Measures.md) | `DISTINCTCOUNT(PurchaseOrders[PurchaseOrderID])` |
 
 
 ---

@@ -18,7 +18,7 @@
 
 | Measure | Expression |
 |---------|------------|
-| [Supplier by Sales](Measures#supplier-by-sales) | `CALCULATE([Sales])` |
+| [Supplier by Sales](Measures.md) | `CALCULATE([Sales])` |
 
 
 ---

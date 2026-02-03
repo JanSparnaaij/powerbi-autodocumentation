@@ -24,11 +24,11 @@
 
 | Measure | Expression |
 |---------|------------|
-| [Highest Sold StockName](Measures#highest-sold-stockname) | `VAR _TopProduct = TOPN( 1, // Only the top record ...` |
-| [Top N1 Sales](Measures#top-n1-sales) | `VAR _ProductRank = RANKX(ALL('Product'), [Sales], ...` |
-| [BestSellingUnitPrice](Measures#bestsellingunitprice) | `VAR TopProduct = TOPN( 1, ALL('Product'), // Consi...` |
-| [Unit price of most sold unit](Measures#unit-price-of-most-sold-unit) | `VAR TopProduct = TOPN( 1, ALL('Product'), [Units],...` |
-| [Highest sold product name](Measures#highest-sold-product-name) | `VAR _TopProduct = TOPN( 1, // Retrieve only the to...` |
+| [Highest Sold StockName](Measures.md) | `VAR _TopProduct = TOPN( 1, // Only the top record ...` |
+| [Top N1 Sales](Measures.md) | `VAR _ProductRank = RANKX(ALL('Product'), [Sales], ...` |
+| [BestSellingUnitPrice](Measures.md) | `VAR TopProduct = TOPN( 1, ALL('Product'), // Consi...` |
+| [Unit price of most sold unit](Measures.md) | `VAR TopProduct = TOPN( 1, ALL('Product'), [Units],...` |
+| [Highest sold product name](Measures.md) | `VAR _TopProduct = TOPN( 1, // Retrieve only the to...` |
 
 
 ---
