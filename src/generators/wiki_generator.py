@@ -49,6 +49,7 @@ class WikiGenerator:
                 
                 print("Extracting metadata...")
                 summary = await pbi.get_model_summary()
+                print(f"DEBUG: Summary data: {summary}")
                 tables = await pbi.get_tables()
                 measures = await pbi.get_measures()
                 relationships = await pbi.get_relationships()
@@ -58,6 +59,13 @@ class WikiGenerator:
                 # Get schema for each table and update table columns
                 for table in tables:
                     schema = await pbi.get_schema(table.name)
+                    # Debug first table schema
+                    if table.name == tables[0].name:
+                        print(f"DEBUG: First table '{table.name}' schema type: {type(schema)}")
+                        if isinstance(schema, list) and len(schema) > 0:
+                            print(f"DEBUG: First column structure: {schema[0]}")
+                            print(f"DEBUG: First column keys: {list(schema[0].keys()) if isinstance(schema[0], dict) else 'not a dict'}")
+                    
                     # Update table columns from schema
                     if isinstance(schema, list):
                         table.columns = schema

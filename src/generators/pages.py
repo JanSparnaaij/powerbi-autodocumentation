@@ -20,6 +20,18 @@ def generate_home_page(
         for t in tables
     )
     
+    # Extract model size from summary with multiple field name attempts
+    model_size = 'N/A'
+    if isinstance(summary, dict):
+        # Try various field names (PascalCase, snake_case, etc.)
+        model_size = (summary.get('SizeBytes') or 
+                      summary.get('size_bytes') or 
+                      summary.get('ModelSize') or 
+                      summary.get('model_size') or 
+                      summary.get('Size') or 
+                      summary.get('size') or 
+                      'N/A')
+    
     return f"""# {model_name} - Semantic Model Documentation
 
 > Auto-generated on {datetime.now().strftime("%Y-%m-%d %H:%M UTC")}
@@ -30,7 +42,7 @@ def generate_home_page(
 |--------|-------|
 | Tables | {table_count} |
 | Measures | {measure_count} |
-| Model Size | {summary.get('size_bytes', 'N/A') if isinstance(summary, dict) else 'N/A'} bytes |
+| Model Size | {model_size} bytes |
 
 ## Quick Navigation
 
@@ -83,9 +95,16 @@ def generate_table_page(
     if table_measures:
         measures_rows = []
         for m in table_measures:
-            # Escape pipe characters in expressions
-            expr = m.expression.replace("|", "\\|") if m.expression else ""
-            measures_rows.append(f"| [{m.name}](Measures#{_slugify(m.name)}) | `{expr[:50]}...` |")
+            # Clean expression: escape pipes, replace newlines with spaces, limit length
+            if m.expression:
+                expr = m.expression.replace("|", "\\|").replace("\n", " ").replace("\r", "")
+                # Collapse multiple spaces
+                expr = " ".join(expr.split())
+                # Limit to 50 chars
+                expr = expr[:50] + "..." if len(expr) > 50 else expr
+            else:
+                expr = ""
+            measures_rows.append(f"| [{m.name}](Measures#{_slugify(m.name)}) | `{expr}` |")
         
         measures_section = f"""
 ## Measures
