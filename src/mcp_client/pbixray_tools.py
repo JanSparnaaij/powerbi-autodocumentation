@@ -113,18 +113,20 @@ class PBIXRayClient:
         result = await self.client.call_tool("get_model_summary", {})
         return self._parse_result(result)
     
-    def _parse_result(self, result: dict) -> Any:
+    def _parse_result(self, result: Any) -> Any:
         """Parse MCP tool result and extract content."""
         if not result:
             return {}
         
-        # MCP returns results in content array
-        content = result.get("content", [])
+        # MCP v1.0+ returns CallToolResult Pydantic object
+        # Access content attribute directly, not as dict
+        content = getattr(result, "content", [])
         if not content:
             return {}
         
-        # Extract text content
-        text_content = content[0].get("text", "")
+        # Extract text content from first content item
+        first_content = content[0]
+        text_content = getattr(first_content, "text", "")
         
         # Try to parse as JSON
         try:
