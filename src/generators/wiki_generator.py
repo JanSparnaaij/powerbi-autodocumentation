@@ -31,28 +31,14 @@ class WikiGenerator:
         print(f"Generating documentation for {model_name}...")
         
         # Start MCP server and extract metadata
-        # Try multiple approaches to find pbixray-mcp-server
-        server_cmd = None
+        # pbixray-mcp-server uses src/pbixray_server.py
+        server_script = "./pbixray-mcp-server/src/pbixray_server.py"
         
-        # Approach 1: Try as installed module
-        try:
-            import pbixray_mcp_server
-            server_cmd = ["python", "-m", "pbixray_mcp_server"]
-            print("Using installed pbixray_mcp_server module")
-        except ImportError:
-            # Approach 2: Try direct script path
-            script_paths = [
-                "./pbixray-mcp-server/pbixray_mcp_server/__main__.py",
-                "./pbixray-mcp-server/src/pbixray_mcp_server/__main__.py",
-            ]
-            for script_path in script_paths:
-                if Path(script_path).exists():
-                    server_cmd = ["python", script_path]
-                    print(f"Using script at {script_path}")
-                    break
+        if not Path(server_script).exists():
+            raise RuntimeError(f"pbixray-mcp-server not found at {server_script}")
         
-        if not server_cmd:
-            raise RuntimeError("pbixray-mcp-server not found. Install it first.")
+        server_cmd = ["python", server_script]
+        print(f"Using pbixray-mcp-server at {server_script}")
         
         try:
             async with MCPClient(server_cmd).connect() as client:
