@@ -65,9 +65,9 @@ jobs:
                 # PBIX file - add directly
                 echo "$file" >> /tmp/pbix_files.txt
               elif [[ "$file" == *.pbip ]]; then
-                # PBIP file - find the .Dataset folder
+                # PBIP file - find the .SemanticModel or .Dataset folder
                 pbip_dir=$(dirname "$file")
-                dataset_dir=$(find "$pbip_dir" -type d -name "*.Dataset" | head -1)
+                dataset_dir=$(find "$pbip_dir" -type d \( -name "*.SemanticModel" -o -name "*.Dataset" \) | head -1)
                 if [ -n "$dataset_dir" ]; then
                   echo "$dataset_dir" >> /tmp/pbix_files.txt
                 fi
@@ -78,7 +78,7 @@ jobs:
               # No changed files, find all
               echo "No changed PBIX/PBIP files detected, processing all"
               find . -name "*.pbix" -type f -not -path "*/pbixray-mcp-server/*" > /tmp/pbix_files.txt
-              find . -type d -name "*.Dataset" -not -path "*/pbixray-mcp-server/*" >> /tmp/pbix_files.txt
+              find . -type d \( -name "*.SemanticModel" -o -name "*.Dataset" \) -not -path "*/pbixray-mcp-server/*" >> /tmp/pbix_files.txt
             else
               echo "Found changed PBIX/PBIP files:"
               cat /tmp/pbix_files.txt
