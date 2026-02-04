@@ -1,6 +1,6 @@
 # Artificial Intelligence Sample - Semantic Model Documentation
 
-> Auto-generated on 2026-02-04 20:03 UTC
+> Auto-generated on 2026-02-04 20:08 UTC
 
 ## Model Overview
 
