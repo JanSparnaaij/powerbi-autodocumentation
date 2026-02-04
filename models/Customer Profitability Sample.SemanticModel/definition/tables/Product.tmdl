@@ -1,10 +1,10 @@
 table Product
-	lineageTag: 211fe47a-8c25-438a-9098-b7f7661dc8bf
+	lineageTag: 2a3adfb5-49a0-4993-906a-1fda9bda75a7
 
 	column 'Product Key'
 		dataType: int64
 		isHidden
-		lineageTag: f98fda73-22f2-4c0d-b15c-d0a6e1cc1562
+		lineageTag: b7ddee06-84a7-4f7e-97c2-5d38e5859a39
 		summarizeBy: none
 		sourceColumn: Product Key
 
@@ -16,7 +16,7 @@ table Product
 
 	column Product
 		dataType: string
-		lineageTag: c5aa4362-d473-44f5-bdb6-b09b23741f6c
+		lineageTag: 115cd15e-b292-49d2-b90b-fa4ec8504f05
 		summarizeBy: none
 		sourceColumn: Product
 

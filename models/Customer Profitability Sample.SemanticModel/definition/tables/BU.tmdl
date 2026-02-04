@@ -1,10 +1,10 @@
 table BU
-	lineageTag: 6045a370-f2c6-4596-9a81-cf6324290d95
+	lineageTag: 65eb38b6-a0ad-4974-9a62-9b812a49bfea
 
 	column 'BU Key'
 		dataType: double
 		isHidden
-		lineageTag: 428b702c-064d-4e50-b993-0334da6221ca
+		lineageTag: e8d3375b-2841-4598-a81a-41d5812ac698
 		summarizeBy: none
 		sourceColumn: BU Key
 
@@ -16,7 +16,7 @@ table BU
 
 	column BU
 		dataType: string
-		lineageTag: e4b4c577-5f2e-4ec0-b78a-f3dee6a723f1
+		lineageTag: 3b06c90b-90e5-4f31-b349-9b79ed55c7cc
 		summarizeBy: none
 		sourceColumn: BU
 
@@ -28,7 +28,7 @@ table BU
 
 	column Division
 		dataType: string
-		lineageTag: 655f44a1-af04-4f89-8100-473fc6b06074
+		lineageTag: c7b8f777-75de-47db-946b-8923d0c09408
 		summarizeBy: none
 		sourceColumn: Division
 
@@ -41,7 +41,7 @@ table BU
 	column Executive_id
 		dataType: int64
 		isHidden
-		lineageTag: a250d893-6bad-40ec-90a8-501d79c9e558
+		lineageTag: ba6d6c6c-c55b-487a-a6ad-ab81c6185433
 		summarizeBy: none
 		sourceColumn: Executive_id
 
@@ -50,14 +50,14 @@ table BU
 		annotation SummarizationSetBy = Automatic
 
 	hierarchy BUHierarchy
-		lineageTag: 1b21fc8c-27f7-4f38-801b-1cb3bd627d39
+		lineageTag: 49687b17-4ad0-4234-b70f-3b9a93103c81
 
 		level Division
-			lineageTag: 6e47197e-2dcf-429f-aa7d-4299f7589a9f
+			lineageTag: cad4e3fe-a362-4fe1-bfc5-b0b01e4e5eb0
 			column: Division
 
 		level BU
-			lineageTag: 7c8cbfca-e049-4248-b049-2d14ae716363
+			lineageTag: e57ab715-484d-49be-ba72-d818ba93727b
 			column: BU
 
 	partition BU = m

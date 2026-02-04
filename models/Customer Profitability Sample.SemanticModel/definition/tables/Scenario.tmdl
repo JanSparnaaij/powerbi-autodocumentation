@@ -1,10 +1,10 @@
 table Scenario
-	lineageTag: 3832236a-554b-40c4-b79e-dedf49b56029
+	lineageTag: 66ca42b3-75a6-4909-95fc-d802e3beb440
 
 	column 'Scenario Key'
 		dataType: int64
 		isHidden
-		lineageTag: 8fc05a99-2219-47e1-bdcc-d5edbb3b4cb7
+		lineageTag: dc9268f8-d0b9-42dc-8a42-29b003927182
 		summarizeBy: none
 		sourceColumn: Scenario Key
 
@@ -16,7 +16,7 @@ table Scenario
 
 	column Scenario
 		dataType: string
-		lineageTag: 909ea739-4a46-416a-92a8-efd5e7fba095
+		lineageTag: f81c4c10-87e2-4029-9e03-14662459a098
 		summarizeBy: none
 		sourceColumn: Scenario
 

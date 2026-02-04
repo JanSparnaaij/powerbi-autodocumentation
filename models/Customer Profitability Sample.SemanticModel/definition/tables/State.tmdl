@@ -1,9 +1,9 @@
 table State
-	lineageTag: 2bd08d42-3c52-4398-9a23-d8d4c8bc3266
+	lineageTag: 341c6ce8-e70c-4107-875d-a007f371cec5
 
 	column StateCode
 		dataType: string
-		lineageTag: 33876b24-4189-450f-b352-8884042aec27
+		lineageTag: 36c952d2-22f3-4c4d-93f5-434fc39d322b
 		dataCategory: StateOrProvince
 		summarizeBy: none
 		sourceColumn: StateCode
@@ -16,7 +16,7 @@ table State
 
 	column State
 		dataType: string
-		lineageTag: b5a71a46-ee73-45d6-bf7a-f48597ba0171
+		lineageTag: facd6e1f-5d9c-47bf-98ad-cb74ccdfc432
 		dataCategory: StateOrProvince
 		summarizeBy: none
 		sourceColumn: State
@@ -29,7 +29,7 @@ table State
 
 	column Region
 		dataType: string
-		lineageTag: c99b5d5f-8685-4544-a42f-af7ef0fb68b9
+		lineageTag: 0e7d49b8-670c-4829-8568-dc8ef458c90c
 		dataCategory: Country
 		summarizeBy: none
 		sourceColumn: Region

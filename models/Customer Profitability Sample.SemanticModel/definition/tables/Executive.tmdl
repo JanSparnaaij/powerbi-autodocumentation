@@ -1,12 +1,12 @@
 table Executive
-	lineageTag: 454b0503-c136-4575-b59c-b193535ba2ca
+	lineageTag: 2c58fe7e-2ac7-40ea-a9ba-21398d1c6583
 
 	column ID
 		dataType: int64
 		isHidden
 		isKey
 		keepUniqueRows
-		lineageTag: 18ed7ac4-03ec-40f4-a778-227b855b5827
+		lineageTag: 54cc390e-02cf-4801-848c-a0c018c33b9f
 		summarizeBy: none
 		sourceColumn: ID
 
@@ -18,7 +18,7 @@ table Executive
 
 	column Name
 		dataType: string
-		lineageTag: 4723bddf-06a0-4e8a-987c-805dd9cfdf9e
+		lineageTag: de096cb9-a58d-40fd-9732-a5f97c7af3dd
 		isDefaultLabel
 		summarizeBy: none
 		sourceColumn: Name
@@ -31,7 +31,7 @@ table Executive
 
 	column Img
 		dataType: binary
-		lineageTag: 3cd40d73-0058-4230-87bd-eb6f4e5cbe24
+		lineageTag: 3276661d-c742-49c4-bf45-69e9ff33273e
 		dataCategory: Image
 		isDefaultImage
 		summarizeBy: none

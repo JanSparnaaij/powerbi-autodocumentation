@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
     "type": "Report",
-    "displayName": "Customer Profitability Sample PBIX"
+    "displayName": "Customer Profitability Sample"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "af657936-5ac6-49de-a3c9-5c0b15351f09"
+    "logicalId": "2620a028-03ad-41ef-87f7-e14656c3a413"
   }
 }

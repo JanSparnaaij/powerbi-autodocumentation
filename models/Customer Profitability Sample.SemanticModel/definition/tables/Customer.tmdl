@@ -1,10 +1,10 @@
 table Customer
-	lineageTag: b8bb29fe-9afd-4ca1-9bcc-773a70962eb6
+	lineageTag: 7c0008b0-b1bb-4ca7-a44e-5e547f74371d
 
 	column Customer
 		dataType: double
 		isHidden
-		lineageTag: 625e6594-dcd7-42e4-b1e7-c46d16b918e8
+		lineageTag: ce163050-3a1e-4ede-97d5-461a8a5f0ec1
 		summarizeBy: none
 		sourceColumn: Customer
 
@@ -14,7 +14,7 @@ table Customer
 
 	column Country/Region
 		dataType: string
-		lineageTag: 995c0713-f35c-41f1-850d-61bd8f78eed6
+		lineageTag: 9a402dad-6e53-4428-833a-403fc71dba7a
 		summarizeBy: none
 		sourceColumn: Country/Region
 
@@ -26,7 +26,7 @@ table Customer
 
 	column Name
 		dataType: string
-		lineageTag: 7c5bfea6-5a82-4885-8f5c-80f1de0927fc
+		lineageTag: f8da2892-4205-4c22-8c78-50a4af857df2
 		summarizeBy: none
 		sourceColumn: Name
 
@@ -38,7 +38,7 @@ table Customer
 
 	column City
 		dataType: string
-		lineageTag: 4450b194-6b2b-40c2-b4ba-dfc2bafcc319
+		lineageTag: c8646e22-49fb-4573-b950-ee7c7876e77a
 		dataCategory: City
 		summarizeBy: none
 		sourceColumn: City
@@ -51,7 +51,7 @@ table Customer
 
 	column 'Postal Code'
 		dataType: double
-		lineageTag: d3ee3770-87be-4b1c-893d-944adc35d9fd
+		lineageTag: 7072e736-456d-44d8-ba88-50b824ff1719
 		dataCategory: PostalCode
 		summarizeBy: count
 		sourceColumn: Postal Code
@@ -64,7 +64,7 @@ table Customer
 
 	column State
 		dataType: string
-		lineageTag: baefbb72-e7d1-4627-8ffa-252c1fc600a4
+		lineageTag: f539daa9-2621-417e-a355-4a3e3170d4ed
 		dataCategory: StateOrProvince
 		summarizeBy: none
 		sourceColumn: State
@@ -78,7 +78,7 @@ table Customer
 	column 'Industry ID'
 		dataType: double
 		isHidden
-		lineageTag: bb3f5688-f865-49d1-b293-2870d2666a5e
+		lineageTag: 9a27ba18-a95b-4097-bf05-7c8b48cf7a4d
 		summarizeBy: none
 		sourceColumn: Industry ID
 
@@ -89,26 +89,26 @@ table Customer
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	hierarchy CustomerHierarchy
-		lineageTag: 24b4530d-eeb3-4678-9773-5ec05f42be96
+		lineageTag: 3686a98c-24c2-47d4-b843-81dc3a4a36c4
 
 		level Country
-			lineageTag: d44ecb2b-9f94-4a95-b0ed-4baaefded4ae
+			lineageTag: e346b109-c373-4247-bf8a-e8b4032d82d0
 			column: Country/Region
 
 		level State
-			lineageTag: a770bc64-f08a-4496-aa27-e4bd40252ae6
+			lineageTag: 4a32cf1a-3b61-484d-b924-520baef74d80
 			column: State
 
 		level City
-			lineageTag: 63a559e6-a499-44e9-b4bc-f59a29fa572a
+			lineageTag: 3d4b1623-a6b5-4014-a863-4c02b510a9ee
 			column: City
 
 		level 'Postal Code'
-			lineageTag: 5922b7a2-165d-484d-9bf5-baac9364b2c9
+			lineageTag: cda0e839-2025-4a90-990c-ad7cc418894e
 			column: 'Postal Code'
 
 		level Customer
-			lineageTag: 385c614b-4f10-4fad-a8dd-6c3e5ee41611
+			lineageTag: 5e02224e-df0f-4eac-a665-cff12ee64775
 			column: Customer
 
 	partition Customer = m
