@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-02-04
+
+### Added
+- **GitHub Actions Workflow**: Automated documentation generation for PBIX files
+  - Hybrid workflow architecture with Linux runner for PBIX processing
+  - Automatic trigger on PBIX/PBIP file changes
+  - Manual workflow dispatch with file path input
+  - Auto-commit documentation updates to `docs/` folder
+  - Comprehensive workflow documentation in `.github/workflows/README.md`
+
+### Fixed
+- **Fabric Connection Parsing**: Fixed MCP engine connection string parsing for Fabric workspaces
+  - Correctly extracts `workspaceName` and `semanticModelName` parameters
+  - Improved error messages for invalid Fabric URLs
+  - Added helper method `_build_request()` for optional connectionName handling
+
+### Known Issues
+- **PBIP in GitHub Actions**: PBIP documentation job disabled due to Microsoft MCP server compatibility
+  - `WinError 216`: MCP server executable incompatible with GitHub Actions Windows runners
+  - Root cause: Missing system dependencies in hosted Windows Server 2022 runners
+  - Workaround: Use local execution for PBIP, or export as PBIX for CI/CD
+  - Works perfectly: Local PBIP documentation with MCP engine
+
+### Documentation
+- Added GitHub Actions workflow guide with architecture diagram
+- Documented MCP server WinError 216 compatibility issues
+- Added PBIP CI/CD workarounds in workflow README
+- Updated main README with Fabric troubleshooting section
+
 ## [0.3.0] - 2026-02-04
 
 ### Added - MCP Modeling Engine Support
