@@ -1,9 +1,10 @@
 # Power BI Models Documentation
 
-This repository contains auto-generated documentation for 3 Power BI model(s).
+This repository contains auto-generated documentation for 4 Power BI model(s).
 
 ## Available Models
 
+- **[AdventureWorks Sales](adventureworks-sales/Home.md)**
 - **[Artificial Intelligence Sample](artificial-intelligence-sample/Home.md)**
 - **[Customer Profitability Sample](customer-profitability-sample/Home.md)**
 - **[Fabrikam Company Sales Report](fabrikam-company-sales-report/Home.md)**
