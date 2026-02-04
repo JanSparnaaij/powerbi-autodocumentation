@@ -374,6 +374,17 @@ python generate_wiki.py ./model.xyz --engine custom -o ./docs
 
 ## Troubleshooting
 
+### Fabric Remote Connection Issues
+
+**Symptom**: `Error connecting to Fabric: Failed to open ADOMD connection: PowerBI Request Failed`
+
+**Cause**: Microsoft Power BI Modeling MCP Server has authentication limitations in headless/CLI mode for Fabric remote connections.
+
+**Solutions**:
+- **Option 1**: Export semantic model as PBIP folder and document locally
+- **Option 2**: Connect to Power BI Desktop via localhost (requires XMLA endpoint enabled)
+- **Option 3**: Download as PBIX and use default pbixray engine
+
 ### PBIX File Not Found
 
 ```

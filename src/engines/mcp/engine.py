@@ -175,6 +175,27 @@ class ModelingMCPEngine(IDocumentationEngine):
                 "table_operations",
             }
     
+    def _build_request(self, operation: str, **params) -> dict:
+        """Build request dict with optional connectionName.
+        
+        Args:
+            operation: Operation name
+            **params: Additional parameters
+            
+        Returns:
+            Request dictionary
+        """
+        request = {"operation": operation}
+        
+        # Only add connectionName if it's set (None means "last used")
+        if self._connection_id:
+            request["connectionName"] = self._connection_id
+        
+        # Add other parameters
+        request.update(params)
+        
+        return request
+    
     async def _connect_to_source(self, source: str) -> None:
         """Connect to a Power BI model source.
         
@@ -252,16 +273,49 @@ class ModelingMCPEngine(IDocumentationEngine):
         try:
             # Parse connection string
             if connection_string.startswith("powerbi://"):
-                # Fabric workspace connection
-                result = await self.mcp_client.call_tool(
-                    "connection_operations",
-                    {
-                        "request": {
-                            "operation": "ConnectFabric",
-                            "dataSource": connection_string,
+                # Fabric workspace connection - parse URL format:
+                # powerbi://api.powerbi.com/v1.0/myorg/<workspace>/<semantic-model>
+                parts = connection_string.replace("powerbi://api.powerbi.com/v1.0/myorg/", "").split("/")
+                if len(parts) >= 2:
+                    workspace_name = parts[0]
+                    semantic_model_name = "/".join(parts[1:])  # Handle model names with /
+                    
+                    logger.info(f"Parsed Fabric connection: workspace='{workspace_name}', model='{semantic_model_name}'")
+                    
+                    result = await self.mcp_client.call_tool(
+                        "connection_operations",
+                        {
+                            "request": {
+                                "operation": "ConnectFabric",
+                                "workspaceName": workspace_name,
+                                "semanticModelName": semantic_model_name,
+                            }
                         }
-                    }
-                )
+                    )
+                    
+                    # Parse result to get connection name
+                    parsed = _parse_mcp_result(result)
+                    
+                    if parsed.get("success") and "data" in parsed:
+                        # Extract connection name from data
+                        data = parsed["data"]
+                        if isinstance(data, dict):
+                            self._connection_id = data.get("connectionName") or data.get("name")
+                        elif isinstance(data, str):
+                            self._connection_id = data
+                    
+                    if not self._connection_id:
+                        # If no connection ID returned, MCP might use "last used"
+                        # Try to get the connection list to find the name
+                        logger.warning("No connection ID in result, MCP may be using 'last used' connection")
+                        self._connection_id = None  # Will use implicit "last used" connection
+                    
+                    logger.info(f"Connected with connection ID: {self._connection_id}")
+                else:
+                    raise ValueError(
+                        f"Invalid Fabric connection string format. Expected: "
+                        f"powerbi://api.powerbi.com/v1.0/myorg/<workspace>/<model>"
+                    )
             else:
                 # Desktop or XMLA endpoint
                 result = await self.mcp_client.call_tool(
@@ -329,12 +383,7 @@ class ModelingMCPEngine(IDocumentationEngine):
         try:
             result = await self.mcp_client.call_tool(
                 "model_operations",
-                {
-                    "request": {
-                        "operation": "Get",
-                        "connectionName": self._connection_id,
-                    }
-                }
+                {"request": self._build_request("Get")}
             )
             
             parsed = _parse_mcp_result(result)
@@ -362,12 +411,7 @@ class ModelingMCPEngine(IDocumentationEngine):
         try:
             result = await self.mcp_client.call_tool(
                 "table_operations",
-                {
-                    "request": {
-                        "operation": "List",
-                        "connectionName": self._connection_id,
-                    }
-                }
+                {"request": self._build_request("List")}
             )
             
             parsed = _parse_mcp_result(result)
@@ -403,13 +447,7 @@ class ModelingMCPEngine(IDocumentationEngine):
         try:
             result = await self.mcp_client.call_tool(
                 "table_operations",
-                {
-                    "request": {
-                        "operation": "GetSchema",
-                        "connectionName": self._connection_id,
-                        "tableName": table_name,
-                    }
-                }
+                {"request": self._build_request("GetSchema", tableName=table_name)}
             )
             
             parsed = _parse_mcp_result(result)
