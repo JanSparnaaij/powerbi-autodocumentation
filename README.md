@@ -2,6 +2,30 @@
 
 Automatically generate comprehensive GitHub wiki documentation from Power BI PBIX files using the Model Context Protocol (MCP).
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Installing Dependencies](#installing-dependencies)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+  - [Basic Usage (PBIXRay Engine)](#basic-usage-pbixray-engine)
+  - [Using the MCP Modeling Engine](#using-the-mcp-modeling-engine)
+  - [Engine Comparison](#engine-comparison)
+  - [Local Generation](#local-generation)
+  - [GitHub Actions Integration](#github-actions-integration)
+- [Project Structure](#project-structure)
+- [Generated Documentation](#generated-documentation)
+- [Configuration](#configuration)
+  - [Customizing Output](#customizing-output)
+  - [Alternative MCP Servers](#alternative-mcp-servers)
+  - [Creating Custom Engines](#creating-custom-engines)
+- [Troubleshooting](#troubleshooting)
+- [Series Articles](#series-articles)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Overview
 
 This project implements a three-layer pipeline that extracts metadata from Power BI models and transforms it into structured, searchable wiki documentation with Mermaid diagrams.
@@ -411,7 +435,8 @@ MIT License - see LICENSE file for details
 
 ## Acknowledgments
 
-- [PBIXRay MCP Server](https://github.com/jonaolden/pbixray-mcp-server) by jonaolden
-- [PBIXRay Library](https://github.com/Hugoberry/pbixray) by Hugoberry
-- [Model Context Protocol](https://modelcontextprotocol.io/) by Anthropic
+- [Power BI Modeling MCP Server](https://github.com/microsoft/vscode-powerbi) by Microsoft - Official MCP server for PBIP, Desktop, and Analysis Services
+- [PBIXRay MCP Server](https://github.com/jonaolden/pbixray-mcp-server) by jonaolden - Community MCP server for PBIX files
+- [PBIXRay Library](https://github.com/Hugoberry/pbixray) by Hugoberry - Python library for extracting PBIX metadata
+- [Model Context Protocol](https://modelcontextprotocol.io/) by Anthropic - Open protocol for AI-tool integration
 - Article series by [Michael Hannecke](https://medium.com/@michael.hannecke)
