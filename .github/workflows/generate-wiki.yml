@@ -89,9 +89,11 @@ jobs:
         run: |
           # Process each PBIX/PBIP file (handles filenames with spaces)
           while IFS= read -r pbix; do
-            if [ -f "$pbix" ] || [ -d "$pbix" ]; then
-              echo "Processing: $pbix"
+            if [ -f "$pbix" ] && [[ "$pbix" == *.pbix ]]; then
+              echo "Processing PBIX: $pbix"
               python generate_wiki.py "$pbix" -o ./docs
+            elif [ -d "$pbix" ]; then
+              echo "⚠️  Skipping PBIP folder: $pbix (PBIP format not yet supported by pbixray-mcp-server)"
             fi
           done < /tmp/pbix_files.txt
       
