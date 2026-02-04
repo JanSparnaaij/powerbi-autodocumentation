@@ -6,6 +6,8 @@ Automatically generate comprehensive GitHub wiki documentation from Power BI PBI
 
 This project implements a three-layer pipeline that extracts metadata from Power BI models and transforms it into structured, searchable wiki documentation with Mermaid diagrams.
 
+**📁 See [STRUCTURE.md](STRUCTURE.md) for detailed folder organization**
+
 ### Features
 
 - 🚀 **Automated Documentation**: Generates wiki pages automatically from PBIX files
@@ -49,6 +51,27 @@ pip install -e ./pbixray-mcp-server
 
 # Install the base MCP protocol library and PBIXRay
 pip install mcp pbixray
+```
+
+## Quick Start
+
+```bash
+# Activate virtual environment (if using one)
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Generate documentation (outputs to docs/ by default)
+python generate_wiki.py path/to/model.pbix
+
+# Specify custom output folder
+python generate_wiki.py path/to/model.pbix -o ./custom-output
+
+# Use MCP engine for PBIP projects
+python generate_wiki.py path/to/Model.SemanticModel --engine mcp
+
+# Connect to Power BI Desktop (requires XMLA enabled)
+python generate_wiki.py localhost:12345 --engine mcp
+```
+pip install mcp pbixray
 
 # Install project dependencies
 pip install -r requirements.txt
@@ -62,6 +85,100 @@ pip install -r requirements.txt
 3. Use **Microsoft's Modeling MCP Server** to connect to Power BI Desktop instances or PBIP folders
 
 ## Usage
+
+### Basic Usage (PBIXRay Engine)
+
+Generate documentation from a PBIX file using the default pbixray engine:
+
+```bash
+python generate_wiki.py ./path/to/your/model.pbix -o ./docs
+```
+
+Example with custom name:
+```bash
+python generate_wiki.py ./models/Sales.pbix -o ./docs -n "Sales Analytics Model"
+```
+
+### Using the MCP Modeling Engine
+
+The MCP engine provides support for **PBIP folders**, **live Power BI Desktop connections**, and **Analysis Services** - features not available in pbixray.
+
+#### Prerequisites
+
+1. **Install Power BI Modeling MCP Server**:
+   - Via VS Code: Install the "Power BI" extension by Microsoft
+   - Or download from: https://github.com/microsoft/vscode-powerbi
+   
+2. **Set environment variable** (optional):
+   ```bash
+   # Windows
+   set POWERBI_MCP_PATH=C:\path\to\PowerBI.ModelingMcp.Server.exe
+   
+   # Linux/Mac
+   export POWERBI_MCP_PATH=/path/to/PowerBI.ModelingMcp.Server
+   ```
+   
+   If not set, the tool will auto-discover from VS Code extension installation.
+
+#### PBIP Folder Documentation
+
+Generate documentation from a PBIP folder (TMDL format):
+
+```bash
+# Using convenience flag
+python generate_wiki.py --pbip ./models/Sales.Dataset -o ./docs
+
+# Or explicitly with engine selection
+python generate_wiki.py ./models/Sales.Dataset -o ./docs --engine mcp
+```
+
+#### Power BI Desktop Live Connection
+
+Document a currently open Power BI Desktop file:
+
+```bash
+# Auto-detect Desktop instance
+python generate_wiki.py --desktop localhost:12345 -o ./docs
+
+# Or with connection string
+python generate_wiki.py powerbi://localhost:12345 -o ./docs --engine mcp
+```
+
+#### MCP Engine Options
+
+```bash
+python generate_wiki.py ./source -o ./docs --engine mcp \
+  --mcp-mode readwrite \              # Access mode: readonly (default) or readwrite
+  --mcp-timeout 120 \                 # Connection timeout in seconds (default: 60)
+  --mcp-retries 5 \                   # Max retry attempts (default: 3)
+  --mcp-server "C:\custom\path.exe"   # Custom server path
+```
+
+#### Complete MCP Example
+
+```bash
+# Document PBIP folder with custom timeout and verbose logging
+python generate_wiki.py ./models/Sales.Dataset -o ./docs \
+  --engine mcp \
+  --mcp-mode readonly \
+  --mcp-timeout 120 \
+  --verbose
+```
+
+### Engine Comparison
+
+| Feature | PBIXRay Engine | MCP Modeling Engine |
+|---------|----------------|---------------------|
+| PBIX files | ✅ Yes | ❌ No |
+| PBIP folders | ❌ No | ✅ Yes |
+| TMDL format | ❌ No | ✅ Yes |
+| Desktop live | ❌ No | ✅ Yes |
+| SSAS connections | ❌ No | ✅ Yes |
+| Power Query | ✅ Yes | ⚠️ Limited |
+| Auto-discovery | N/A | ✅ Yes |
+| Read-write mode | N/A | ✅ Yes |
+
+**Recommendation**: Use pbixray (default) for PBIX files in CI/CD pipelines. Use MCP engine for PBIP folders, development workflows with Desktop, or Analysis Services connections.
 
 ### Local Generation
 
@@ -138,6 +255,18 @@ Trigger documentation generation manually:
 ```
 powerbi-autodocumentation/
 ├── src/
+│   ├── engines/                # Documentation engine abstraction
+│   │   ├── __init__.py
+│   │   ├── base.py            # IDocumentationEngine interface
+│   │   ├── registry.py        # Engine factory and registry
+│   │   ├── pbixray/           # PBIXRay engine (PBIX files)
+│   │   │   ├── __init__.py
+│   │   │   └── engine.py
+│   │   └── mcp/               # MCP Modeling engine (PBIP/Desktop)
+│   │       ├── __init__.py
+│   │       ├── engine.py      # Main engine implementation
+│   │       ├── config.py      # Configuration classes
+│   │       └── discovery.py   # Server auto-discovery
 │   ├── mcp_client/
 │   │   ├── __init__.py
 │   │   ├── client.py          # MCP protocol client
@@ -150,6 +279,12 @@ powerbi-autodocumentation/
 │   └── utils/
 │       ├── __init__.py
 │       └── markdown.py        # Markdown formatting helpers
+├── tests/
+│   └── engines/               # Engine tests
+│       ├── __init__.py
+│       ├── test_registry.py
+│       ├── test_mcp_config.py
+│       └── test_mcp_discovery.py
 ├── .github/workflows/
 │   └── generate-wiki.yml      # GitHub Action
 ├── generate_wiki.py           # CLI entry point
@@ -183,20 +318,53 @@ Edit the page generators in `src/generators/pages.py` to customize:
 
 ### Alternative MCP Servers
 
-You can use different MCP servers:
+The tool supports pluggable documentation engines through an abstraction layer.
 
-**PBIXRay** (default):
+#### Built-in Engines
+
+**PBIXRay Engine** (default - `--engine pbixray`):
 - Works directly with PBIX files
 - Ideal for CI/CD pipelines
+- Full Power Query support
+- No external dependencies
+- Source: [pbixray-mcp-server](https://github.com/jonaolden/pbixray-mcp-server)
 
-**Microsoft Modeling MCP Server**:
-- Connects to Power BI Desktop or PBIP folders
-- Comprehensive metadata access
+**MCP Modeling Engine** (`--engine mcp`):
+- Connects to Power BI Desktop, PBIP folders, or Analysis Services
+- Comprehensive metadata access via Microsoft's Modeling MCP Server
+- Auto-discovers server from VS Code extension or `POWERBI_MCP_PATH`
+- Supports read-only and read-write modes
+- Source: [Power BI VS Code extension](https://marketplace.visualstudio.com/items?itemName=microsoft.powerbi-vscode)
 
-**Microsoft Remote MCP Server**:
-- Hosted at `api.fabric.microsoft.com/v1/mcp/powerbi`
-- Entra ID authentication
-- Access to published semantic models
+#### Creating Custom Engines
+
+Implement the `IDocumentationEngine` interface:
+
+```python
+from src.engines.base import IDocumentationEngine, ModelMetadata
+
+class CustomEngine(IDocumentationEngine):
+    async def load_model(self, source: str, **kwargs):
+        # Load your model
+        pass
+    
+    async def extract_metadata(self) -> ModelMetadata:
+        # Extract and return metadata
+        pass
+    
+    async def close(self):
+        # Clean up resources
+        pass
+
+# Register your engine
+from src.engines import register_engine
+register_engine("custom", CustomEngine)
+```
+
+Then use it:
+```bash
+python generate_wiki.py ./model.xyz --engine custom -o ./docs
+```
 
 ## Troubleshooting
 

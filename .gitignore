@@ -25,6 +25,7 @@ Thumbs.db
 # Project specific
 wiki/
 wiki-output/
+test-docs/
 # docs/ folder is committed for GitHub Pages
 # *.pbix files are committed so workflow can process them
 pbixray-mcp-server/

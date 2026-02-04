@@ -1,10 +1,11 @@
 # src/generators/wiki_generator.py
 import os
 import asyncio
+import logging
 from pathlib import Path
+from typing import Any
 
-from ..mcp_client.client import MCPClient
-from ..mcp_client.pbixray_tools import PBIXRayClient
+from ..engines import get_engine, IDocumentationEngine
 from .mermaid import generate_er_diagram
 from .pages import (
     generate_home_page,
@@ -15,86 +16,91 @@ from .pages import (
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 class WikiGenerator:
-    """Generates GitHub wiki pages from PBIX model."""
+    """Generates documentation pages from Power BI models."""
     
     def __init__(self, output_dir: str):
         self.base_output_dir = Path(output_dir)
         self.base_output_dir.mkdir(parents=True, exist_ok=True)
     
-    async def generate(self, pbix_path: str, model_name: str | None = None):
-        """Generate complete wiki from PBIX file."""
+    async def generate(
+        self,
+        source: str,
+        model_name: str | None = None,
+        engine_type: str = "pbixray",
+        engine_kwargs: dict[str, Any] | None = None
+    ):
+        """Generate complete documentation from a Power BI model.
+        
+        Args:
+            source: Model source (PBIX file, PBIP folder, connection string)
+            model_name: Display name for the model (derived from source if not provided)
+            engine_type: Documentation engine to use ("pbixray" or "mcp")
+            engine_kwargs: Engine-specific configuration options
+        """
+        if engine_kwargs is None:
+            engine_kwargs = {}
         
         if not model_name:
-            model_name = Path(pbix_path).stem
+            model_name = Path(source).stem
         
         # Create a subfolder for this model
         model_slug = self._slugify(model_name)
         self.output_dir = self.base_output_dir / model_slug
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        print(f"Generating documentation for {model_name}...")
-        print(f"Output folder: {self.output_dir}")
+        logger.info(f"Generating documentation for {model_name}...")
+        logger.info(f"Output folder: {self.output_dir}")
+        logger.info(f"Using engine: {engine_type}")
         
-        # Start MCP server and extract metadata
-        # pbixray-mcp-server uses src/pbixray_server.py
-        server_script = "./pbixray-mcp-server/src/pbixray_server.py"
-        
-        if not Path(server_script).exists():
-            raise RuntimeError(f"pbixray-mcp-server not found at {server_script}")
-        
-        server_cmd = ["python", server_script]
-        print(f"Using pbixray-mcp-server at {server_script}")
-        
+        # Create engine instance
         try:
-            async with MCPClient(server_cmd).connect() as client:
-                pbi = PBIXRayClient(client)
+            engine = get_engine(engine_type, **engine_kwargs)
+        except Exception as e:
+            logger.error(f"Failed to create engine '{engine_type}': {e}")
+            raise RuntimeError(f"Engine initialization failed: {e}")
+        
+        # Extract metadata using engine
+        try:
+            async with engine:
+                logger.info(f"Loading model from: {source}")
+                await engine.load_model(source)
                 
-                print("Loading PBIX file...")
-                await pbi.load_pbix(pbix_path)
+                logger.info("Extracting metadata...")
+                metadata = await engine.extract_metadata()
                 
-                print("Extracting metadata...")
-                summary = await pbi.get_model_summary()
-                print(f"DEBUG: Summary data: {summary}")
-                tables = await pbi.get_tables()
-                measures = await pbi.get_measures()
-                relationships = await pbi.get_relationships()
+                summary = metadata.summary
+                tables = metadata.tables
+                measures = metadata.measures
+                relationships = metadata.relationships
+                power_query = metadata.power_query
                 
-                print(f"Found {len(tables)} tables, {len(measures)} measures, {len(relationships)} relationships")
-                
-                # Get schema for each table and update table columns
-                for table in tables:
-                    schema = await pbi.get_schema(table.name)
-                    # Debug first table schema
-                    if table.name == tables[0].name:
-                        print(f"DEBUG: First table '{table.name}' schema type: {type(schema)}")
-                        if isinstance(schema, list) and len(schema) > 0:
-                            print(f"DEBUG: First column structure: {schema[0]}")
-                            print(f"DEBUG: First column keys: {list(schema[0].keys()) if isinstance(schema[0], dict) else 'not a dict'}")
-                    
-                    # Update table columns from schema
-                    if isinstance(schema, list):
-                        table.columns = schema
-                    elif isinstance(schema, dict) and 'columns' in schema:
-                        table.columns = schema['columns']
-                
-                # Get Power Query code
-                power_query = await pbi.get_power_query()
+                logger.info(
+                    f"Found {len(tables)} tables, {len(measures)} measures, "
+                    f"{len(relationships)} relationships"
+                )
         
         except FileNotFoundError as e:
-            print(f"Error: {e}")
+            logger.error(f"Source not found: {e}")
             raise
         except RuntimeError as e:
-            print(f"MCP Error: {e}")
-            print("Ensure the pbixray-mcp-server is installed and accessible")
+            logger.error(f"Engine error: {e}")
             raise
+        except Exception as e:
+            logger.error(f"Unexpected error during metadata extraction: {e}")
+            raise RuntimeError(f"Metadata extraction failed: {e}")
         
         # Generate pages
-        print("Generating wiki pages...")
+        logger.info("Generating documentation pages...")
         self._write_page("Home", generate_home_page(
             model_name, summary, tables, measures
         ))
         
+        for table in tables:
+            page_name = f"Table-{self._slugify(table.name)}"
         for table in tables:
             page_name = f"Table-{self._slugify(table.name)}"
             self._write_page(page_name, generate_table_page(
@@ -116,12 +122,12 @@ class WikiGenerator:
         # Create index page in base directory listing all models
         self._create_models_index()
         
-        print(f"✓ Documentation generated in {self.output_dir}")
-        print(f"  - Home page")
-        print(f"  - {len(tables)} table pages")
-        print(f"  - Measures page")
-        print(f"  - Relationships page")
-        print(f"  - Data Sources page")
+        logger.info(f"✓ Documentation generated in {self.output_dir}")
+        logger.info(f"  - Home page")
+        logger.info(f"  - {len(tables)} table pages")
+        logger.info(f"  - Measures page")
+        logger.info(f"  - Relationships page")
+        logger.info(f"  - Data Sources page")
     
     def _write_page(self, page_name: str, content: str):
         """Write a wiki page to disk."""
