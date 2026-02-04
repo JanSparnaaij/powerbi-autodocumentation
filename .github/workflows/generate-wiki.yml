@@ -125,8 +125,13 @@ jobs:
           git push origin main || echo "No changes to push"
 
   # Job 2: Process PBIP folders on Windows (MCP engine)
+  # DISABLED: Microsoft's MCP server has compatibility issues in GitHub Actions (WinError 216)
+  # The powerbi-modeling-mcp.exe requires dependencies not available in hosted runners
+  # Workaround: Use local execution or export PBIP as PBIX for CI/CD
+  # See: https://github.com/JanSparnaaij/powerbi-autodocumentation/issues/XX
   pbip-docs:
-    runs-on: windows-2022  # Explicit Windows Server 2022
+    if: false  # Disabled until Microsoft fixes MCP server compatibility
+    runs-on: windows-2022
     
     permissions:
       contents: write

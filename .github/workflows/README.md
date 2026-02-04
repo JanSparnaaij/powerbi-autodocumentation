@@ -2,10 +2,13 @@
 
 ## Overview
 
-The `generate-wiki.yml` workflow automatically generates documentation for Power BI models using a **hybrid approach**:
+The `generate-wiki.yml` workflow automatically generates documentation for Power BI models.
 
-- **PBIX files** → Linux runner with PBIXRay engine (fast)
-- **PBIP folders** → Windows runner with Microsoft MCP engine (comprehensive)
+**Current Status:**
+- ✅ **PBIX files** → Linux runner with PBIXRay engine (fully working)
+- ⚠️ **PBIP folders** → **DISABLED** due to Microsoft MCP server compatibility issues in GitHub Actions
+
+> **Note:** The PBIP job is disabled until Microsoft resolves WinError 216 compatibility issues with the `powerbi-modeling-mcp.exe` in hosted runners. For PBIP documentation, use local execution or export as PBIX.
 
 ## Architecture
 
@@ -15,10 +18,10 @@ Push/Manual Trigger
         ├─────────────────────┬─────────────────────┐
         │                     │                     │
     Job 1: pbix-docs      Job 2: pbip-docs        │
-    (ubuntu-latest)       (windows-latest)        │
+    (ubuntu-latest)       (DISABLED)              │
         │                     │                     │
     PBIXRay Engine        MCP Engine              │
-        │                     │                     │
+        │                     (compatibility issue) │
     Process .pbix         Process .SemanticModel  │
         │                     │                     │
         └─────────────────────┴─────────────────────┤
@@ -31,13 +34,13 @@ Push/Manual Trigger
 ### Automatic (Push)
 Triggers when you push changes to:
 - `**.pbix` - Any PBIX file
-- `**.pbip` - Any PBIP project file
-- `**.SemanticModel/**` - Any file in a SemanticModel folder
+- `**.pbip` - Any PBIP project file (⚠️ documentation disabled)
+- `**.SemanticModel/**` - Any file in a SemanticModel folder (⚠️ documentation disabled)
 - `.github/workflows/generate-wiki.yml` - Workflow itself
 
 ### Manual (Workflow Dispatch)
 Run manually from GitHub Actions tab with options:
-- **file_path**: Path to PBIX file or PBIP folder
+- **file_path**: Path to PBIX file or PBIP folder (⚠️ PBIP disabled)
 - **file_type**: Auto-detect, pbix, or pbip (optional)
 
 ## Jobs
@@ -77,9 +80,14 @@ Run manually from GitHub Actions tab with options:
 6. Generate documentation (`python generate_wiki.py folder --engine mcp`)
 7. Commit to `docs/`
 
-**Runs when**: PBIP folders are detected
+**Runs when**: **DISABLED** - PBIP job currently disabled due to compatibility issues
 
-**Key difference**: Downloads official Microsoft MCP server (0.1.9) from marketplace as a VS Code extension package and extracts it.
+**Known Issue**: The Microsoft MCP server executable (`powerbi-modeling-mcp.exe`) fails to start in GitHub Actions hosted runners with `WinError 216`, indicating missing system dependencies or runtime incompatibilities. Both .NET 8.0 and Visual C++ redistributables did not resolve the issue.
+
+**Workarounds**:
+1. Run PBIP documentation locally (works perfectly)
+2. Export PBIP as PBIX and use the pbix-docs job
+3. Use self-hosted Windows runner with proper dependencies
 
 ## File Detection Logic
 
@@ -89,7 +97,7 @@ Run manually from GitHub Actions tab with options:
 - Detects changed `*.pbix` files via `git diff`
 - Falls back to all PBIX files if none changed
 
-**PBIP Job**:
+**PBIP Job** (disabled):
 - Detects changed files within `.SemanticModel` or `.Dataset` folders
 - Extracts unique folder paths from changed files
 - Falls back to all PBIP folders if none changed
@@ -149,11 +157,17 @@ docs/
 - ❌ No Power Query M code extraction (limited)
 
 ### PBIP Job
-- ✅ PBIP folders (TMDL format)
-- ✅ Full metadata via MCP
-- ❌ Windows runner (slower)
+- ❌ **DISABLED** - MCP server compatibility issues in GitHub Actions (WinError 216)
+- ✅ Works perfectly for local execution
+- ✅ Full metadata extraction when run locally
+- ❌ GitHub Actions hosted runners missing required dependencies
 - ❌ No Fabric remote connections (authentication issues)
-- ⚠️ Requires MCP server download (~18 MB)
+- ⚠️ Self-hosted Windows runner may work (untested)
+
+**PBIP Workarounds for CI/CD:**
+1. Export PBIP as PBIX and commit for pbix-docs job
+2. Run documentation locally and commit to docs/
+3. Use self-hosted Windows runner (requires testing)
 
 ## Troubleshooting
 
@@ -162,14 +176,22 @@ docs/
 - Verify pbixray-mcp-server installation
 - Check PBIX file is not corrupted
 
-### PBIP Job Fails
-- Check MCP server download succeeded
-- Verify `.SemanticModel` or `.Dataset` folder structure
-- Check `definition/` subfolder exists with `.tmdl` files
-- Review verbose logs (`--verbose` flag is enabled)
+### PBIP Job Disabled
+The PBIP job is currently disabled due to Microsoft MCP server compatibility issues:
+
+**Error**: `WinError 216: This version of %1 is not compatible with the version of Windows you're running`
+
+**Cause**: The `powerbi-modeling-mcp.exe` requires system dependencies not available in GitHub Actions hosted Windows runners (Windows Server 2022).
+
+**Attempted fixes** (unsuccessful):
+- ✗ .NET 8.0 Runtime installation
+- ✗ Visual C++ Redistributables
+- ✗ Explicit windows-2022 runner
+
+**Resolution**: Use local execution for PBIP documentation until Microsoft resolves compatibility issues.
 
 ### Both Jobs Run
-Normal behavior when both PBIX and PBIP files change. Each job handles its own file type.
+Normal behavior when both PBIX and PBIP files change. Currently only pbix-docs will execute.
 
 ### No Commits
 - Check if files actually changed
@@ -182,15 +204,17 @@ Normal behavior when both PBIX and PBIP files change. Each job handles its own f
 - Free for public repos
 - Fast execution (~2-3 minutes)
 
-### Windows Runner
-- 2x multiplier for billing on private repos
-- Slower execution (~5-8 minutes including MCP download)
-- Consider caching MCP server if running frequently
+### Windows Runner (Disabled)
+- Would be 2x multiplier for billing on private repos
+- Would be slower execution (~5-8 minutes including MCP download)
+- Currently disabled, no cost impact
 
 ## Future Enhancements
 
 Potential improvements:
-- Cache MCP server installation between runs
+- **Fix PBIP job compatibility** - Work with Microsoft to resolve WinError 216
+- Test self-hosted Windows runners for PBIP support
+- Cache MCP server installation between runs (if PBIP re-enabled)
 - Parallel PBIP folder processing
 - Support for Fabric workspace connections (needs auth solution)
 - Consolidated commit strategy (single commit for both jobs)
