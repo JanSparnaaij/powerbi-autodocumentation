@@ -12,7 +12,6 @@ Automatically generate comprehensive GitHub wiki documentation from Power BI PBI
   - [Basic Usage (PBIXRay Engine)](#basic-usage-pbixray-engine)
   - [Using the MCP Modeling Engine](#using-the-mcp-modeling-engine)
   - [Engine Comparison](#engine-comparison)
-  - [Local Generation](#local-generation)
   - [GitHub Actions Integration](#github-actions-integration)
 - [Project Structure](#project-structure)
 - [Generated Documentation](#generated-documentation)
@@ -28,79 +27,112 @@ Automatically generate comprehensive GitHub wiki documentation from Power BI PBI
 
 ## Overview
 
-This project implements a three-layer pipeline that extracts metadata from Power BI models and transforms it into structured, searchable wiki documentation with Mermaid diagrams.
+This project automatically extracts metadata from Power BI models and transforms it into structured, searchable wiki documentation with Mermaid diagrams.
 
 **📁 See [STRUCTURE.md](STRUCTURE.md) for detailed folder organization**
 
 ### Features
 
-- 🚀 **Automated Documentation**: Generates wiki pages automatically from PBIX files
+- 🚀 **Automated Documentation**: Generates wiki pages from PBIX files, PBIP folders, or live connections
+- 🔌 **Multiple Engines**: Choose between PBIXRay (PBIX) or Microsoft MCP (PBIP/Desktop/SSAS)
 - 📊 **Mermaid Diagrams**: Visual entity-relationship diagrams for model structure
 - 🔄 **CI/CD Integration**: GitHub Actions workflow for automatic updates
-- 📝 **Comprehensive Coverage**: Documents tables, measures, relationships, and Power Query code
+- 📝 **Comprehensive Coverage**: Documents tables, columns, measures, relationships, and DAX
 - 🔍 **Searchable**: Full-text search across all documentation
 - 📜 **Version History**: Git-tracked documentation changes
+- 🎯 **Auto-Discovery**: Automatically finds MCP server from VS Code installation
 
 ## Architecture
 
-The pipeline consists of three main components:
+The pipeline consists of four main layers:
 
-1. **MCP Client Layer** - Wraps the PBIXRay MCP server with typed Python functions
-2. **Generator Layer** - Transforms metadata into Markdown pages with Mermaid diagrams
-3. **Automation Layer** - GitHub Action that watches for PBIX changes and updates the wiki
+1. **Source Layer** - Multiple Power BI input formats (PBIX, PBIP/TMDL, Desktop, SSAS)
+2. **Engine Abstraction Layer** - Pluggable documentation engines via `IDocumentationEngine` interface
+3. **Generator Layer** - Transforms metadata into Markdown pages with Mermaid diagrams
+4. **Output Layer** - Git-tracked documentation in `docs/` folder
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   PBIX File     │────▶│   MCP Server    │────▶│  Python Client  │
-│  (or PBIP/TMDL) │     │   (PBIXRay)     │     │  (MCP Protocol) │
-└─────────────────┘     └─────────────────┘     └────────┬────────┘
-                                                         │
-                                                         ▼
-                        ┌─────────────────┐     ┌─────────────────┐
-                        │  GitHub Wiki    │◀────│ Wiki Generator  │
-                        │   (Markdown)    │     │ (Mermaid/MD)    │
-                        └─────────────────┘     └─────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                      Source Layer                            │
+│  PBIX Files  │  PBIP Folders  │  Desktop  │  SSAS/Fabric    │
+└──────────────┴────────────────┴───────────┴─────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│               Engine Abstraction Layer                       │
+│  ┌──────────────────┐        ┌──────────────────┐          │
+│  │  PBIXRay Engine  │        │   MCP Engine     │          │
+│  │  (PBIX files)    │        │ (PBIP/Desktop/   │          │
+│  │                  │        │  SSAS)           │          │
+│  └────────┬─────────┘        └────────┬─────────┘          │
+│           │                           │                     │
+│           └───────────┬───────────────┘                     │
+│                       │                                     │
+│            IDocumentationEngine Interface                   │
+└───────────────────────┼─────────────────────────────────────┘
+                        │
+                        ▼
+              ┌──────────────────┐
+              │ Metadata Extract │
+              │ (Tables, Measures│
+              │  Relationships)  │
+              └────────┬─────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Generator Layer                             │
+│  Wiki Generator  →  Mermaid Diagrams  →  Markdown Pages    │
+└───────────────────────────┬─────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     Output Layer                             │
+│     docs/ folder  →  GitHub Pages  →  Searchable Wiki      │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+**Key Features:**
+- **Pluggable Engines**: Choose between PBIXRay (PBIX) or MCP (PBIP/Desktop/SSAS)
+- **Auto-Discovery**: MCP engine automatically finds Microsoft's server from VS Code extension
+- **Unified Interface**: Both engines provide consistent metadata extraction
+- **Extensible**: Add custom engines by implementing `IDocumentationEngine`
 
 ## Installing Dependencies
 
-The PBIXRay MCP server isn't available via pip. Clone it from GitHub:
-
 ```bash
-# Clone the MCP server repository
-git clone https://github.com/jonaolden/pbixray-mcp-server.git
-
-# Make it accessible by adding to PYTHONPATH or installing in editable mode
-pip install -e ./pbixray-mcp-server
-
-# Install the base MCP protocol library and PBIXRay
-pip install mcp pbixray
+# Install from requirements.txt
+pip install -r requirements.txt
 ```
+
+**Note**: The Microsoft Power BI Modeling MCP Server is automatically discovered from your VS Code extension. No manual installation needed.
 
 ## Quick Start
 
-```bash
-# Activate virtual environment (if using one)
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+**Engine Selection**: The tool does NOT auto-detect which engine to use. You must specify:
+- **Default (pbixray)**: For `.pbix` files - uses PBIXRay library directly
+- **`--engine mcp`**: For PBIP folders, Desktop, or SSAS - connects to Microsoft MCP server
 
-# Generate documentation (outputs to docs/ by default)
+```bash
+# Generate documentation from PBIX using PBIXRay (default engine)
 python generate_wiki.py path/to/model.pbix
 
-# Specify custom output folder
-python generate_wiki.py path/to/model.pbix -o ./custom-output
-
-# Use MCP engine for PBIP projects
+# Generate from PBIP folder - MUST specify --engine mcp
 python generate_wiki.py path/to/Model.SemanticModel --engine mcp
 
 # Connect to Power BI Desktop (requires XMLA enabled)
 python generate_wiki.py localhost:12345 --engine mcp
+
+# Specify custom output folder
+python generate_wiki.py path/to/model.pbix -o ./custom-output
 ```
 
 ## Usage
 
 ### Basic Usage (PBIXRay Engine)
 
-Generate documentation from a PBIX file using the default pbixray engine:
+The **default engine is pbixray**, which works with `.pbix` files only.
+
+Generate documentation from a PBIX file:
 
 ```bash
 python generate_wiki.py ./path/to/your/model.pbix -o ./docs
@@ -112,6 +144,11 @@ python generate_wiki.py ./models/Sales.pbix -o ./docs -n "Sales Analytics Model"
 ```
 
 ### Using the MCP Modeling Engine
+
+**Important**: The MCP engine is NOT automatically selected. You MUST use `--engine mcp` when working with:
+- PBIP folders (`.SemanticModel`)
+- Power BI Desktop live connections
+- Analysis Services connections
 
 The MCP engine provides support for **PBIP folders**, **live Power BI Desktop connections**, and **Analysis Services** - features not available in pbixray.
 
@@ -296,8 +333,7 @@ The tool supports pluggable documentation engines through an abstraction layer.
 - Works directly with PBIX files
 - Ideal for CI/CD pipelines
 - Full Power Query support
-- No external dependencies
-- Source: [pbixray-mcp-server](https://github.com/jonaolden/pbixray-mcp-server)
+- Uses [PBIXRay library](https://github.com/Hugoberry/pbixray) directly (not MCP)
 
 **MCP Modeling Engine** (`--engine mcp`):
 - Connects to Power BI Desktop, PBIP folders, or Analysis Services
@@ -337,17 +373,6 @@ python generate_wiki.py ./model.xyz --engine custom -o ./docs
 ```
 
 ## Troubleshooting
-
-### MCP Server Not Found
-
-```
-RuntimeError: Failed to connect to MCP server
-```
-
-**Solution**: Ensure pbixray-mcp-server is installed and in Python path:
-```bash
-pip install -e ./pbixray-mcp-server
-```
 
 ### PBIX File Not Found
 
