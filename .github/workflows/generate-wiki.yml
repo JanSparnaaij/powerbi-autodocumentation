@@ -162,13 +162,21 @@ jobs:
           Write-Host "Extracting to $extractPath..."
           Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
           
-          # Verify installation
-          $serverPath = "$extractPath\server\powerbi-modeling-mcp.exe"
-          if (Test-Path $serverPath) {
-            Write-Host "✓ MCP Server installed successfully at: $serverPath"
+          # Debug: Show extracted structure
+          Write-Host "Extracted contents:"
+          Get-ChildItem -Path $extractPath -Recurse -Depth 2 | Select-Object FullName
+          
+          # Find the MCP server executable (search recursively)
+          Write-Host "Searching for powerbi-modeling-mcp.exe..."
+          $serverPath = Get-ChildItem -Path $extractPath -Recurse -Filter "powerbi-modeling-mcp.exe" -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+          
+          if ($serverPath -and (Test-Path $serverPath)) {
+            Write-Host "✓ MCP Server found at: $serverPath"
             echo "POWERBI_MCP_PATH=$serverPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           } else {
-            Write-Error "Failed to find MCP server at expected path"
+            Write-Error "Failed to find powerbi-modeling-mcp.exe in extracted files"
+            Write-Host "Available files:"
+            Get-ChildItem -Path $extractPath -Recurse | Select-Object FullName
             exit 1
           }
       
