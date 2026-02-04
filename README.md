@@ -95,18 +95,6 @@ python generate_wiki.py path/to/Model.SemanticModel --engine mcp
 # Connect to Power BI Desktop (requires XMLA enabled)
 python generate_wiki.py localhost:12345 --engine mcp
 ```
-pip install mcp pbixray
-
-# Install project dependencies
-pip install -r requirements.txt
-```
-
-**Note for Windows Users**: The `xpress9` dependency (used by `pbixray`) requires Cython and may fail to build on Windows. 
-
-**Workaround options:**
-1. Use **WSL (Windows Subsystem for Linux)** where the build succeeds
-2. Use **Microsoft's Remote MCP Server** (hosted at `api.fabric.microsoft.com/v1/mcp/powerbi`) with Entra ID authentication
-3. Use **Microsoft's Modeling MCP Server** to connect to Power BI Desktop instances or PBIP folders
 
 ## Usage
 
@@ -203,48 +191,6 @@ python generate_wiki.py ./models/Sales.Dataset -o ./docs \
 | Read-write mode | N/A | ✅ Yes |
 
 **Recommendation**: Use pbixray (default) for PBIX files in CI/CD pipelines. Use MCP engine for PBIP folders, development workflows with Desktop, or Analysis Services connections.
-
-### Local Generation
-
-Generate documentation locally from a PBIX file:
-
-```bash
-python generate_wiki.py ./path/to/your/model.pbix -o ./docs
-```
-
-Example from the articles:
-```bash
-python generate_wiki.py ./models/Sales.pbix -o ./docs -n "Sales Analytics Model"
-```
-
-The generated markdown files can be:
-- Committed to your repository (in `docs/` folder)
-- Hosted on GitHub Pages (free on all plans)
-- Used in any documentation system that supports markdown
-
-### Running Locally (from the articles)
-
-Test the pipeline before deploying. After completing the installation steps, run:
-
-```bash
-# Clone your generator repo
-git clone https://github.com/your-org/pbi-wiki-generator
-cd pbi-wiki-generator
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies (including pbixray-mcp-server setup from earlier)
-pip install -r requirements.txt
-
-# Generate wiki locally
-python generate_wiki.py ./path/to/your/model.pbix -o ./wiki-preview
-
-# Preview the output
-ls -la ./wiki-preview/
-cat ./wiki-preview/Home.md
-```
 
 ### GitHub Actions Integration
 
