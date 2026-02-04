@@ -5,16 +5,26 @@ on:
     paths:
       - '**.pbix'
       - '**.pbip'
+      - '**.SemanticModel/**'
       - '.github/workflows/generate-wiki.yml'
   workflow_dispatch:
     inputs:
-      pbix_path:
+      file_path:
         description: 'Path to PBIX file or PBIP folder'
         required: true
         default: './models/Fabrikam Company Sales Report.pbix'
+      file_type:
+        description: 'File type (auto-detect if not specified)'
+        required: false
+        type: choice
+        options:
+          - auto
+          - pbix
+          - pbip
 
 jobs:
-  generate-docs:
+  # Job 1: Process PBIX files on Linux (fast, pbixray engine)
+  pbix-docs:
     runs-on: ubuntu-latest
     
     permissions:
@@ -53,54 +63,209 @@ jobs:
         id: find-pbix
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "${{ github.event.inputs.pbix_path }}" > /tmp/pbix_files.txt
-          else
-            # Find changed PBIX files and PBIP folders in the push
-            changed=$(git diff --name-only HEAD^ HEAD | grep -E '\.(pbix|pbip)$' || true)
+            file_path="${{ github.event.inputs.file_path }}"
+            file_type="${{ github.event.inputs.file_type }}"
             
-            > /tmp/pbix_files.txt  # Clear file
-            
-            for file in $changed; do
-              if [[ "$file" == *.pbix ]]; then
-                # PBIX file - add directly
-                echo "$file" >> /tmp/pbix_files.txt
-              elif [[ "$file" == *.pbip ]]; then
-                # PBIP file - find the .SemanticModel or .Dataset folder
-                pbip_dir=$(dirname "$file")
-                dataset_dir=$(find "$pbip_dir" -type d \( -name "*.SemanticModel" -o -name "*.Dataset" \) | head -1)
-                if [ -n "$dataset_dir" ]; then
-                  echo "$dataset_dir" >> /tmp/pbix_files.txt
-                fi
+            # Auto-detect if not specified
+            if [ "$file_type" == "auto" ] || [ -z "$file_type" ]; then
+              if [[ "$file_path" == *.pbix ]]; then
+                file_type="pbix"
+              elif [[ "$file_path" == *.SemanticModel ]] || [[ "$file_path" == *.Dataset ]]; then
+                file_type="pbip"
               fi
-            done
+            fi
             
-            if [ ! -s /tmp/pbix_files.txt ]; then
-              # No changed files, find all
-              echo "No changed PBIX/PBIP files detected, processing all"
-              find . -name "*.pbix" -type f -not -path "*/pbixray-mcp-server/*" > /tmp/pbix_files.txt
-              find . -type d \( -name "*.SemanticModel" -o -name "*.Dataset" \) -not -path "*/pbixray-mcp-server/*" >> /tmp/pbix_files.txt
+            # Only process PBIX files in this job
+            if [ "$file_type" == "pbix" ]; then
+              echo "$file_path" > /tmp/pbix_files.txt
             else
-              echo "Found changed PBIX/PBIP files:"
+              touch /tmp/pbix_files.txt  # Empty file
+            fi
+          else
+            # Find changed PBIX files only (PBIP handled by other job)
+            changed=$(git diff --name-only HEAD^ HEAD | grep '\.pbix$' || true)
+            
+            if [ -n "$changed" ]; then
+              echo "$changed" > /tmp/pbix_files.txt
+              echo "Found changed PBIX files:"
               cat /tmp/pbix_files.txt
+            else
+              # No changed PBIX files, find all
+              echo "No changed PBIX files detected, processing all"
+              find . -name "*.pbix" -type f > /tmp/pbix_files.txt
             fi
           fi
+          
+          # Set output for conditional commit
+          if [ -s /tmp/pbix_files.txt ]; then
+            echo "has_files=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_files=false" >> $GITHUB_OUTPUT
+          fi
       
-      - name: Generate wiki
+      - name: Generate PBIX documentation
+        if: steps.find-pbix.outputs.has_files == 'true'
         run: |
-          # Process each PBIX/PBIP file (handles filenames with spaces)
+          # Process each PBIX file
           while IFS= read -r pbix; do
-            if [ -f "$pbix" ] && [[ "$pbix" == *.pbix ]]; then
-              echo "Processing PBIX: $pbix"
+            if [ -f "$pbix" ]; then
+              echo "📄 Processing PBIX: $pbix"
               python generate_wiki.py "$pbix" -o ./docs
-            elif [ -d "$pbix" ]; then
-              echo "⚠️  Skipping PBIP folder: $pbix (PBIP format not yet supported by pbixray-mcp-server)"
             fi
           done < /tmp/pbix_files.txt
       
-      - name: Commit and push documentation
+      - name: Commit PBIX documentation
+        if: steps.find-pbix.outputs.has_files == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/
-          git commit -m "Auto-update documentation from ${{ github.sha }}" || echo "No changes to commit"
-          git push origin main
+          git diff --staged --quiet || git commit -m "Auto-update PBIX documentation from ${{ github.sha }}"
+          git pull --rebase origin main || true
+          git push origin main || echo "No changes to push"
+
+  # Job 2: Process PBIP folders on Windows (MCP engine)
+  pbip-docs:
+    runs-on: windows-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Install Power BI MCP Server
+        shell: pwsh
+        run: |
+          # Download and extract Power BI Modeling MCP Server
+          $version = "0.1.9"
+          $url = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/analysis-services/vsextensions/powerbi-modeling-mcp/$version/vspackage"
+          $zipPath = "$env:TEMP\powerbi-mcp.zip"
+          $extractPath = "$env:USERPROFILE\.vscode\extensions\analysis-services.powerbi-modeling-mcp-$version-win32-x64"
+          
+          Write-Host "Downloading Power BI MCP Server v$version..."
+          Invoke-WebRequest -Uri $url -OutFile $zipPath
+          
+          Write-Host "Extracting to $extractPath..."
+          Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+          
+          # Verify installation
+          $serverPath = "$extractPath\server\powerbi-modeling-mcp.exe"
+          if (Test-Path $serverPath) {
+            Write-Host "✓ MCP Server installed successfully at: $serverPath"
+            echo "POWERBI_MCP_PATH=$serverPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          } else {
+            Write-Error "Failed to find MCP server at expected path"
+            exit 1
+          }
+      
+      - name: Find PBIP folders
+        id: find-pbip
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $filePath = "${{ github.event.inputs.file_path }}"
+            $fileType = "${{ github.event.inputs.file_type }}"
+            
+            # Auto-detect if not specified
+            if ($fileType -eq "auto" -or [string]::IsNullOrEmpty($fileType)) {
+              if ($filePath -match '\.pbip$') {
+                $fileType = "pbip"
+              } elseif ($filePath -match '\.(SemanticModel|Dataset)$') {
+                $fileType = "pbip"
+              } elseif ($filePath -match '\.pbix$') {
+                $fileType = "pbix"
+              }
+            }
+            
+            # Only process PBIP folders in this job
+            if ($fileType -eq "pbip") {
+              # Find .SemanticModel or .Dataset folder
+              if (Test-Path $filePath -PathType Container) {
+                $filePath | Out-File -FilePath pbip_files.txt -Encoding utf8
+              } else {
+                $pbipDir = Split-Path $filePath
+                $datasetDir = Get-ChildItem -Path $pbipDir -Directory -Filter "*.SemanticModel" -ErrorAction SilentlyContinue | Select-Object -First 1
+                if (-not $datasetDir) {
+                  $datasetDir = Get-ChildItem -Path $pbipDir -Directory -Filter "*.Dataset" -ErrorAction SilentlyContinue | Select-Object -First 1
+                }
+                if ($datasetDir) {
+                  $datasetDir.FullName | Out-File -FilePath pbip_files.txt -Encoding utf8
+                }
+              }
+            } else {
+              New-Item -Path pbip_files.txt -ItemType File -Force
+            }
+          } else {
+            # Find changed PBIP folders (look for .tmdl or definition files in .SemanticModel folders)
+            $changed = git diff --name-only HEAD^ HEAD | Select-String -Pattern '\.(SemanticModel|Dataset)[\\/]'
+            
+            if ($changed) {
+              # Extract unique .SemanticModel/.Dataset folder paths
+              $folders = $changed | ForEach-Object {
+                if ($_ -match '(.+?\.(?:SemanticModel|Dataset))[\\/]') {
+                  $matches[1]
+                }
+              } | Select-Object -Unique
+              
+              $folders | Out-File -FilePath pbip_files.txt -Encoding utf8
+              Write-Host "Found changed PBIP folders:"
+              Get-Content pbip_files.txt
+            } else {
+              # No changed files, find all
+              Write-Host "No changed PBIP folders detected, processing all"
+              Get-ChildItem -Path . -Directory -Recurse -Include "*.SemanticModel","*.Dataset" |
+                Select-Object -ExpandProperty FullName |
+                Out-File -FilePath pbip_files.txt -Encoding utf8
+            }
+          }
+          
+          # Set output for conditional execution
+          if ((Test-Path pbip_files.txt) -and ((Get-Content pbip_files.txt).Length -gt 0)) {
+            echo "has_files=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          } else {
+            echo "has_files=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          }
+      
+      - name: Generate PBIP documentation
+        if: steps.find-pbip.outputs.has_files == 'true'
+        shell: pwsh
+        run: |
+          # Process each PBIP folder
+          Get-Content pbip_files.txt | ForEach-Object {
+            $pbipFolder = $_.Trim()
+            if (Test-Path $pbipFolder -PathType Container) {
+              Write-Host "📁 Processing PBIP: $pbipFolder"
+              python generate_wiki.py "$pbipFolder" --engine mcp -o ./docs --verbose
+            }
+          }
+      
+      - name: Commit PBIP documentation
+        if: steps.find-pbip.outputs.has_files == 'true'
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          
+          $hasChanges = git diff --staged --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "Auto-update PBIP documentation from ${{ github.sha }}"
+            git pull --rebase origin main
+            git push origin main
+          } else {
+            Write-Host "No changes to commit"
+          }
