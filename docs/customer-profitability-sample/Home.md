@@ -1,6 +1,6 @@
 # Customer Profitability Sample - Semantic Model Documentation
 
-> Auto-generated on 2026-02-04 20:14 UTC
+> Auto-generated on 2026-02-04 20:18 UTC
 
 ## Model Overview
 
