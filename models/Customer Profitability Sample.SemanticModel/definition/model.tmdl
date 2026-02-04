@@ -12,6 +12,8 @@ annotation PBI_QueryOrder = ["Fact","BU","Date","Scenario","Product","Customer",
 
 annotation PBI_ProTooling = ["DevMode"]
 
+annotation __PBI_AutoDocumentationTest = "Testing hybrid workflow"
+
 ref table Fact
 ref table BU
 ref table Date
