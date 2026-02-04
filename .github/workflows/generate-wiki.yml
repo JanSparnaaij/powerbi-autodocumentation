@@ -56,16 +56,29 @@ jobs:
             echo "${{ github.event.inputs.pbix_path }}" > /tmp/pbix_files.txt
           else
             # Find changed PBIX files and PBIP folders in the push
-            git diff --name-only HEAD^ HEAD | grep -E '\.(pbix|pbip)$' > /tmp/pbix_files.txt || true
+            changed=$(git diff --name-only HEAD^ HEAD | grep -E '\.(pbix|pbip)$' || true)
             
-            # For PBIP, we need the folder path not the file
-            sed -i 's|/definition\.pbip$||g' /tmp/pbix_files.txt
+            > /tmp/pbix_files.txt  # Clear file
+            
+            for file in $changed; do
+              if [[ "$file" == *.pbix ]]; then
+                # PBIX file - add directly
+                echo "$file" >> /tmp/pbix_files.txt
+              elif [[ "$file" == *.pbip ]]; then
+                # PBIP file - find the .Dataset folder
+                pbip_dir=$(dirname "$file")
+                dataset_dir=$(find "$pbip_dir" -type d -name "*.Dataset" | head -1)
+                if [ -n "$dataset_dir" ]; then
+                  echo "$dataset_dir" >> /tmp/pbix_files.txt
+                fi
+              fi
+            done
             
             if [ ! -s /tmp/pbix_files.txt ]; then
-              # No changed PBIX/PBIP files, find all
+              # No changed files, find all
               echo "No changed PBIX/PBIP files detected, processing all"
               find . -name "*.pbix" -type f -not -path "*/pbixray-mcp-server/*" > /tmp/pbix_files.txt
-              find . -name "definition.pbip" -type f -not -path "*/pbixray-mcp-server/*" | sed 's|/definition\.pbip$||g' >> /tmp/pbix_files.txt
+              find . -type d -name "*.Dataset" -not -path "*/pbixray-mcp-server/*" >> /tmp/pbix_files.txt
             else
               echo "Found changed PBIX/PBIP files:"
               cat /tmp/pbix_files.txt
