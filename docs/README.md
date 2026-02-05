@@ -1,6 +1,6 @@
 # Power BI Models Documentation
 
-This repository contains auto-generated documentation for 4 Power BI model(s).
+This repository contains auto-generated documentation for 5 Power BI model(s).
 
 ## Available Models
 
@@ -8,6 +8,7 @@ This repository contains auto-generated documentation for 4 Power BI model(s).
 - **[Artificial Intelligence Sample](artificial-intelligence-sample/Home.md)**
 - **[Customer Profitability Sample](customer-profitability-sample/Home.md)**
 - **[Fabrikam Company Sales Report](fabrikam-company-sales-report/Home.md)**
+- **[PowerBI-Desktop](powerbi-desktop/Home.md)**
 
 ---
 

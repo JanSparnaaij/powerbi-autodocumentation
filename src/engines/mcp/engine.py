@@ -318,6 +318,10 @@ class ModelingMCPEngine(IDocumentationEngine):
                     )
             else:
                 # Desktop or XMLA endpoint
+                # Convert simple localhost:port format to full connection string
+                if connection_string.startswith("localhost:"):
+                    connection_string = f"Provider=MSOLAP;Data Source={connection_string}"
+                
                 result = await self.mcp_client.call_tool(
                     "connection_operations",
                     {
@@ -327,9 +331,21 @@ class ModelingMCPEngine(IDocumentationEngine):
                         }
                     }
                 )
-            
-            if isinstance(result, dict) and "connectionName" in result:
-                self._connection_id = result["connectionName"]
+                
+                # Parse the result similar to Fabric connection
+                parsed = _parse_mcp_result(result)
+                
+                if parsed.get("success") and "data" in parsed:
+                    data = parsed["data"]
+                    if isinstance(data, dict):
+                        self._connection_id = data.get("connectionName") or data.get("name")
+                    elif isinstance(data, str):
+                        self._connection_id = data
+                
+                if not self._connection_id:
+                    logger.warning("No connection ID in result, MCP may be using 'last used' connection")
+                    self._connection_id = None
+               
                 logger.info(f"Connected with connection ID: {self._connection_id}")
         
         except Exception as e:

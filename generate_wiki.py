@@ -11,6 +11,7 @@ def main():
     )
     parser.add_argument(
         "source",
+        nargs="?",
         help="Path to PBIX file, PBIP folder, or connection string"
     )
     parser.add_argument(
@@ -92,6 +93,8 @@ def main():
     elif args.desktop:
         args.engine = "mcp"
         args.source = args.desktop
+    elif not args.source:
+        parser.error("source is required (or use --pbip/--desktop)")
     
     # Build engine kwargs
     engine_kwargs = {}

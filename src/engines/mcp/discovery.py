@@ -40,14 +40,18 @@ def find_powerbi_mcp_server() -> str | None:
         if user_profile:
             vscode_extensions = Path(user_profile) / ".vscode" / "extensions"
             if vscode_extensions.exists():
-                # Look for Microsoft Power BI extension
+                # Look for Microsoft Power BI extension or analysis-services power bi modeling mcp
                 for ext_dir in vscode_extensions.iterdir():
-                    if "microsoft.powerbi-vscode" in ext_dir.name.lower():
-                        # Check common subpaths
+                    if ("microsoft.powerbi-vscode" in ext_dir.name.lower() or 
+                        "powerbi-modeling-mcp" in ext_dir.name.lower()):
+                        # Check common subpaths and filenames
                         possible_paths = [
+                            ext_dir / "server" / "powerbi-modeling-mcp.exe",
                             ext_dir / "dist" / "PowerBI.ModelingMcp.Server.exe",
                             ext_dir / "bin" / "PowerBI.ModelingMcp.Server.exe",
                             ext_dir / "PowerBI.ModelingMcp.Server.exe",
+                            ext_dir / "dist" / "powerbi-modeling-mcp.exe",
+                            ext_dir / "bin" / "powerbi-modeling-mcp.exe",
                         ]
                         for exe_path in possible_paths:
                             if exe_path.exists():

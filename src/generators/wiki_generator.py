@@ -45,7 +45,18 @@ class WikiGenerator:
             engine_kwargs = {}
         
         if not model_name:
-            model_name = Path(source).stem
+            # Generate model name from source
+            if source.startswith("powerbi://") or source.startswith("localhost:"):
+                # Connection string - use a default name
+                if source.startswith("localhost:"):
+                    model_name = "PowerBI-Desktop"
+                else:
+                    # Extract workspace/model name from powerbi:// URL
+                    parts = source.split("/")
+                    model_name = parts[-1] if parts[-1] else "PowerBI-Fabric"
+            else:
+                # File path
+                model_name = Path(source).stem
         
         # Create a subfolder for this model
         model_slug = self._slugify(model_name)
